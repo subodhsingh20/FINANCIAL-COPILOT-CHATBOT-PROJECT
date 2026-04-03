@@ -1,0 +1,65 @@
+/* stylelint-disable at-rule-no-unknown */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
+
+/* Tailwind directives processed by PostCSS/Tailwind. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", sans-serif;
+    --font-display: "Sora", "Inter", "Segoe UI Variable", "Segoe UI", sans-serif;
+    font-family: var(--font-sans);
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    background:
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 26%),
+      radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.22), transparent 30%),
+      linear-gradient(180deg, #f7fafc 0%, #eaf1ff 100%);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  button,
+  label {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* stylelint-enable at-rule-no-unknown */

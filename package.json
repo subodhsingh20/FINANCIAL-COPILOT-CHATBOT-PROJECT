@@ -1,0 +1,21 @@
+{
+  "name": "ai-chatbot-v1",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "setup": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "node scripts/dev.js",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run start",
+    "postinstall": "npm --prefix backend install && npm --prefix frontend install && npm --prefix frontend run build",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend run start",
+    "check": "npm --prefix frontend run lint && npm --prefix backend run check"
+  },
+  "dependencies": {
+    "@google/genai": "^1.48.0"
+  }
+}
