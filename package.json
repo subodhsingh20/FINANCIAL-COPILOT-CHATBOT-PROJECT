@@ -6,11 +6,11 @@
     "node": ">=20 <23"
   },
   "scripts": {
-    "setup": "npm --prefix backend install && npm --prefix frontend install",
+    "setup": "npm --prefix backend ci && npm --prefix frontend ci --include=dev",
     "dev": "node scripts/dev.js",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:backend": "npm --prefix backend run start",
-    "postinstall": "npm --prefix backend install && npm --prefix frontend install && npm --prefix frontend run build",
+    "postinstall": "npm --prefix backend ci && npm --prefix frontend ci --include=dev && npm --prefix frontend run build",
     "build": "npm --prefix frontend run build",
     "start": "npm --prefix backend run start",
     "check": "npm --prefix frontend run lint && npm --prefix backend run check"

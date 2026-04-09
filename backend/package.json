@@ -11,6 +11,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@ibm-cloud/cloudant": "^0.12.17",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

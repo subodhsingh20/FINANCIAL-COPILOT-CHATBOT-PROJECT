@@ -1,0 +1,43 @@
+{
+  "family": "myapp-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::REPLACE_WITH_AWS_ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::REPLACE_WITH_AWS_ACCOUNT_ID:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "myapp",
+      "image": "176777036996.dkr.ecr.ap-south-1.amazonaws.com/my-nodejs-app",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "CLOUDANT_URL",
+          "value": "REPLACE_WITH_CLOUDANT_URL"
+        },
+        {
+          "name": "CLOUDANT_APIKEY",
+          "value": "REPLACE_WITH_CLOUDANT_APIKEY"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/myapp",
+          "awslogs-region": "REPLACE_WITH_AWS_REGION",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
