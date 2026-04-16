@@ -1,136 +1,80 @@
-# Elastic Beanstalk Deployment Guide
+# Frontend + Backend Deployment Guide
 
-## What This Repo Does In Production
+This project now deploys as two separate services:
 
-- Elastic Beanstalk installs dependencies from the project root.
-- Root `postinstall` installs both `backend` and `frontend` dependencies.
-- Root `postinstall` also builds the frontend into `frontend/dist`.
-- The running process is started from the root `Procfile`.
-- `backend/server.js` serves both the API and the built frontend.
+- Frontend on AWS Amplify
+- Backend API on AWS Elastic Beanstalk
 
-## Elastic Beanstalk Requirements
+The backend no longer serves the React build. Amplify owns the UI, and the backend only serves API routes.
 
-1. Use the `Node.js` Elastic Beanstalk platform.
-2. Choose a Node.js version compatible with this app.
-   This repo is configured for `Node 20.x` or `Node 22.x`.
-3. Deploy from the project root, not from only `backend` or only `frontend`.
-
-## Important Files
-
-- `Procfile`
-  `web: npm start`
-- `package.json`
-  Includes:
-  - `postinstall` to install/build subprojects
-  - `start` to launch the backend server
-- `backend/server.js`
-  Uses `process.env.PORT`, which Elastic Beanstalk sets automatically.
-
-## Environment Variables
-
-Set these in Elastic Beanstalk under:
-`Environment properties`
-
-Required:
-
-```env
-JWT_SECRET=replace-with-a-long-random-secret
-CLOUDANT_URL=https://username:password@your-cloudant-host
-CLOUDANT_USERS_DB=users
-CLOUDANT_CONVERSATIONS_DB=conversations
-AI_API_KEY=your-gemini-or-provider-key
-AI_MODEL=gemini-2.5-flash
-AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
-```
-
-Recommended:
-
-```env
-CORS_ORIGIN=https://your-elastic-beanstalk-domain.eu-west-1.elasticbeanstalk.com
-OPENWEATHER_API_KEY=
-NEWS_API_KEY=
-```
-
-Notes:
-
-- Do not set `PORT` manually in Elastic Beanstalk.
-- For production on the same domain, leave `frontend` API base empty.
-- `frontend/.env.example` is already configured for same-origin production usage.
-
-## Deploy Steps
-
-1. From the project root, make sure local checks pass:
-
-```bash
-npm run check
-```
-
-2. Create the deployable source bundle from the project root.
-
-3. Upload the full root project to Elastic Beanstalk.
-
-4. Elastic Beanstalk will:
-   - run `npm install`
-   - trigger root `postinstall`
-   - build the frontend
-   - start the app with the `Procfile`
-
-## Recommended Elastic Beanstalk Setup
-
-1. Create a `Web server environment`.
-2. Use the default reverse proxy that Elastic Beanstalk provides.
-3. Configure health check path as:
-
-```text
-/api/health
-```
-
-4. Add your environment properties before first launch.
-5. After deployment, test:
-   - `/api/health`
-   - register
-   - login
-   - create chat
-   - refresh conversation history
-
-## What To Upload
-
-Upload the repo root with:
+## Keep in the repo
 
 - `backend/`
 - `frontend/`
-- `scripts/`
+- `.github/workflows/deploy.yml`
+- `amplify.yml`
 - `package.json`
 - `package-lock.json`
+
+## Remove from the repo
+
+- `Dockerfile`
+- `.dockerignore`
 - `Procfile`
+- `ecs-task.json`
+- `.ebignore`
+- `.elasticbeanstalk/config.yml`
 
-Do not upload local `node_modules`.
+## Frontend on Amplify
 
-## If Build Fails
+1. Connect the GitHub repo to AWS Amplify.
+2. Use the root [`amplify.yml`](./amplify.yml) file.
+3. Set this Amplify environment variable:
 
-Check Elastic Beanstalk logs for:
+```env
+VITE_API_BASE_URL=https://your-backend.elasticbeanstalk.com
+```
 
-- missing env vars
-- bad Cloudant credentials
-- Node version mismatch
-- frontend build failures during root `postinstall`
+4. Amplify builds the React app from `frontend/`.
 
-## Current Production Entry Point
+## Backend on Elastic Beanstalk
 
-Elastic Beanstalk starts:
+1. Deploy the `backend/` folder as the source bundle.
+2. Use the Node.js Elastic Beanstalk platform.
+3. Set these environment variables in Beanstalk:
+
+```env
+CLOUDANT_URL=https://username:password@your-cloudant-host
+CLOUDANT_USERS_DB=users
+CLOUDANT_CONVERSATIONS_DB=conversations
+CLOUDANT_PORTFOLIOS_DB=portfolios
+JWT_SECRET=replace-with-a-long-random-secret
+CORS_ORIGIN=http://localhost:5173,https://your-frontend.amplifyapp.com
+AI_API_KEY=your-gemini-api-key
+AI_MODEL=gemini-2.5-flash
+AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+ALPHA_VANTAGE_API_KEY=
+PRICE_CACHE_TTL_MS=120000
+```
+
+4. Use `/api/health` as the health check path.
+
+## CI/CD flow
+
+1. Push code from VS Code to GitHub.
+2. GitHub Actions runs frontend and backend checks.
+3. GitHub Actions packages the backend and deploys it to Elastic Beanstalk.
+4. Amplify rebuilds the frontend from the same GitHub branch.
+
+## Local checks
 
 ```bash
-npm start
+npm run check
+npm run build
 ```
 
-That runs:
+## Notes
 
-```bash
-npm --prefix backend run start
-```
-
-And the backend serves the built frontend from:
-
-```text
-frontend/dist
-```
+- `backend/server.js` is API-only now.
+- Keep secrets in AWS environment variables, not in GitHub.
+- CORS must include your Amplify domain and localhost for development.

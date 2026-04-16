@@ -1,124 +1,140 @@
-# NexusAI
+# NexusAI Portfolio Dashboard
 
-NexusAI is a modern full-stack chatbot app with authentication, persistent conversation history, customizable assistant behavior, markdown rendering, code formatting, and a backend AI gateway.
+NexusAI is a full-stack portfolio analysis app with:
 
-## What It Does
-
-- User registration and login with JWT auth
-- Persistent local chat history per user
-- Backend chat endpoint at `/api/chat`
-- Configurable system prompt and creativity controls
-- Markdown and syntax-highlighted assistant responses
-- Copy, regenerate, and voice-input actions
-- Real AI provider support through environment variables
-- Demo fallback mode when AI credentials are not configured
-
-## Tech Stack
-
-- Frontend: React, Vite, Tailwind CSS, Framer Motion
-- Backend: Express, Cloudant, JWT
+- React frontend
+- Express backend
+- Cloudant storage
+- live market data from NSE
+- AI portfolio analysis from Gemini
 
 ## Local Setup
 
-### 1. Backend
+### Backend
 
-Copy `backend/.env.example` to `backend/.env` and fill in your values:
+Copy `backend/.env.example` to `backend/.env` and fill in your values.
 
 ```env
 PORT=5000
 CLOUDANT_URL=https://username:password@your-cloudant-host
 CLOUDANT_USERS_DB=users
 CLOUDANT_CONVERSATIONS_DB=conversations
+CLOUDANT_PORTFOLIOS_DB=portfolios
 JWT_SECRET=your-long-random-secret
 CORS_ORIGIN=http://localhost:5173
-OPENWEATHER_API_KEY=
-NEWS_API_KEY=
 AI_API_KEY=
-AI_MODEL=
-AI_BASE_URL=https://api.openai.com/v1
+AI_MODEL=gemini-2.5-flash
+AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+ALPHA_VANTAGE_API_KEY=
+PRICE_CACHE_TTL_MS=120000
 ```
 
-Install and start from the repo root:
+Install and run from the repo root:
 
 ```bash
 npm run setup
 npm start
 ```
 
-### 2. Frontend
+### Frontend
 
-If you need local frontend-only development, copy `frontend/.env.example` to `frontend/.env` and set:
+Copy `frontend/.env.example` to `frontend/.env` and set:
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000
 ```
 
-Then run:
+Run the frontend:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
+## Deployment
 
-### What to deploy
+The app is now split across two services:
 
-Upload the repo root with these runtime files:
+- Frontend: AWS Amplify
+- Backend API: AWS Elastic Beanstalk
 
-- `backend/`
-- `frontend/`
-- `scripts/`
-- `package.json`
-- `package-lock.json`
-- `Procfile`
+### Frontend
 
-Do not upload local `node_modules` or any generated archives.
-
-### Environment variables
-
-Set these in Elastic Beanstalk under Environment properties:
+Set this Amplify environment variable:
 
 ```env
-JWT_SECRET=replace-with-a-long-random-secret
+VITE_API_BASE_URL=https://your-backend.elasticbeanstalk.com
+```
+
+Amplify uses the root [`amplify.yml`](./amplify.yml) file to build the app from `frontend/`.
+
+### Backend
+
+Set these in Elastic Beanstalk environment properties:
+
+```env
 CLOUDANT_URL=https://username:password@your-cloudant-host
 CLOUDANT_USERS_DB=users
 CLOUDANT_CONVERSATIONS_DB=conversations
-AI_API_KEY=your-gemini-or-provider-key
+CLOUDANT_PORTFOLIOS_DB=portfolios
+JWT_SECRET=replace-with-a-long-random-secret
+CORS_ORIGIN=http://localhost:5173,https://your-frontend.amplifyapp.com
+AI_API_KEY=your-gemini-api-key
 AI_MODEL=gemini-2.5-flash
-AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
-CORS_ORIGIN=https://your-elastic-beanstalk-domain.elasticbeanstalk.com
-OPENWEATHER_API_KEY=
-NEWS_API_KEY=
+AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+ALPHA_VANTAGE_API_KEY=
+PRICE_CACHE_TTL_MS=120000
 ```
 
-Do not set `PORT` manually. Elastic Beanstalk provides it.
+Use `/api/health` as the health check path.
 
-### Recommended EB settings
+### CI/CD flow
 
-- Platform: `Node.js`
-- Health check path: `/api/health`
-- Use the root of the repository as the source bundle
-
-### Deploy flow
-
-1. Run `npm run check` locally.
-2. Zip the repo root without `node_modules`, `.git`, or generated build output.
-3. Upload the source bundle to Elastic Beanstalk.
-4. Verify `/api/health` after deployment.
+1. Push code from VS Code to GitHub.
+2. GitHub Actions runs frontend and backend checks.
+3. GitHub Actions deploys the backend package to Elastic Beanstalk.
+4. Amplify rebuilds the frontend from the same GitHub branch.
 
 ## Checks
 
 ```bash
-cd frontend
-npm run lint
-npm run build
-
-cd ../backend
 npm run check
+npm run build
+```
+
+## Docker
+
+Run the app as two Docker containers from the repo root:
+
+```bash
+docker compose up --build -d
+```
+
+View containers and logs:
+
+```bash
+docker ps
+docker compose logs -f
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Optional Docker Hub push:
+
+```bash
+docker login
+docker build -t yourdockerhubuser/nexusai-backend ./backend
+docker build -t yourdockerhubuser/nexusai-frontend --build-arg VITE_API_BASE_URL=http://localhost:5000 ./frontend
+docker push yourdockerhubuser/nexusai-backend
+docker push yourdockerhubuser/nexusai-frontend
 ```
 
 ## Notes
 
-- If `AI_API_KEY` and `AI_MODEL` are missing, the app still works in demo mode.
-- Backend storage is configured for Cloudant via `CLOUDANT_URL`.
-- Conversation history is stored in browser local storage, not in Cloudant.
+- `backend/server.js` is API-only now.
+- Keep secrets in AWS environment variables, not in GitHub.
+- CORS must include your Amplify domain and localhost for development.

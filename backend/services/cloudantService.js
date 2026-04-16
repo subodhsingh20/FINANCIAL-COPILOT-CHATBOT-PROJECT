@@ -5,9 +5,19 @@ const usersDb = process.env.CLOUDANT_USERS_DB || 'users';
 const conversationsDb = process.env.CLOUDANT_CONVERSATIONS_DB || 'conversations';
 const portfoliosDb = process.env.CLOUDANT_PORTFOLIOS_DB || 'portfolios';
 
+function isPlaceholderCloudantUrl(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return !normalized
+    || normalized.includes('your-cloudant-host')
+    || normalized.includes('username:password@')
+    || normalized.includes('replace-with-a-long-random-secret');
+}
+
 function getCloudantConfig() {
-  if (!cloudantUrl) {
-    throw new Error('Missing required environment variable: CLOUDANT_URL');
+  if (isPlaceholderCloudantUrl(cloudantUrl)) {
+    throw new Error(
+      'Invalid CLOUDANT_URL. Replace the placeholder with your real Cloudant instance URL, for example: https://username:password@your-account.cloudantnosqldb.appdomain.cloud'
+    );
   }
 
   const url = new URL(cloudantUrl);
@@ -189,11 +199,37 @@ async function ensureIndexes() {
   });
 }
 
+function isCloudantPermissionError(error) {
+  return error && (error.status === 401 || error.status === 403)
+    && /admin|server_admin/i.test(error.message || '');
+}
+
 async function initializeCloudant() {
-  await ensureDatabase(usersDb);
-  await ensureDatabase(conversationsDb);
-  await ensureDatabase(portfoliosDb);
-  await ensureIndexes();
+  try {
+    await ensureDatabase(usersDb);
+    await ensureDatabase(conversationsDb);
+    await ensureDatabase(portfoliosDb);
+  } catch (error) {
+    if (!isCloudantPermissionError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      'Cloudant credentials do not have database-create permissions. Skipping database creation because existing databases may already be available.'
+    );
+  }
+
+  try {
+    await ensureIndexes();
+  } catch (error) {
+    if (!isCloudantPermissionError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      'Cloudant credentials do not have index-create permissions. Skipping index creation because existing indexes may already be available.'
+    );
+  }
 }
 
 async function findOne(dbName, selector) {

@@ -102,7 +102,7 @@ const chatbotResponses = {
   "can you give me some encouragement?": "Of course! You are capable of amazing things. Every step you take, no matter how small, is progress. Keep going, and believe in yourself!",
 
   // --- General Conversation & Fun ---
-  "what is the weather like?": "I can't check the real-time weather, but you can see a weather widget on the sidebar for current conditions!",
+  "what is the weather like?": "I can't check the real-time weather.",
   "what time is it?": "I don't have a clock, but your device should show you the current time!",
   "can you write a poem?": "Roses are red, violets are blue, I'm a chatbot here, to help and chat with you!",
   "what's your favorite color?": "As an AI, I don't see colors, but I think the color of a clear blue sky is quite beautiful in pictures!",

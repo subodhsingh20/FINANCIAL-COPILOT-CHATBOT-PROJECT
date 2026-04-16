@@ -2,7 +2,6 @@ require('dotenv').config({ path: __dirname + '/.env' });
 
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
@@ -14,10 +13,19 @@ const { initializeCloudant } = require('./services/cloudantService');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
-const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
 
-if (!process.env.CLOUDANT_URL) {
-  console.error('Missing required environment variable: CLOUDANT_URL');
+function isPlaceholderCloudantUrl(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return !normalized
+    || normalized.includes('your-cloudant-host')
+    || normalized.includes('username:password@')
+    || normalized.includes('replace-with-a-long-random-secret');
+}
+
+if (isPlaceholderCloudantUrl(process.env.CLOUDANT_URL)) {
+  console.error(
+    'Invalid CLOUDANT_URL. Replace the placeholder with your real Cloudant instance URL, for example: https://username:password@your-account.cloudantnosqldb.appdomain.cloud'
+  );
   process.exit(1);
 }
 
@@ -95,58 +103,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/news', async (req, res) => {
-  const apiKey = process.env.NEWS_API_KEY;
-  if (!apiKey) {
-    return res.status(503).json({ message: 'News service is not configured' });
-  }
-
-  try {
-    const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&pageSize=4&apiKey=${apiKey}`);
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch news');
-    }
-
-    res.json({
-      articles: Array.isArray(data.articles) ? data.articles : [],
-    });
-  } catch (error) {
-    console.error('News API error:', error.message);
-    res.status(502).json({ message: 'Unable to fetch news right now' });
-  }
-});
-
-app.get('/api/weather', async (req, res) => {
-  const apiKey = process.env.OPENWEATHER_API_KEY;
-  const { lat, lon } = req.query;
-
-  if (!apiKey) {
-    return res.status(503).json({ message: 'Weather service is not configured' });
-  }
-
-  if (!lat || !lon) {
-    return res.status(400).json({ message: 'lat and lon are required query parameters' });
-  }
-
-  try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&units=metric&appid=${apiKey}`
-    );
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch weather');
-    }
-
-    res.json(data);
-  } catch (error) {
-    console.error('Weather API error:', error.message);
-    res.status(502).json({ message: 'Unable to fetch weather right now' });
-  }
-});
-
 app.use('/api', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/conversations', conversationRoutes);
@@ -155,20 +111,10 @@ app.use('/api', analysisRoutes);
 app.use('/api/market', marketRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Backend server is running');
-});
-
-app.use(express.static(frontendDistPath, { index: false }));
-
-app.get('/{*splat}', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
-
-  return res.sendFile(path.join(frontendDistPath, 'index.html'), (error) => {
-    if (error) {
-      next();
-    }
+  res.json({
+    status: 'ok',
+    service: 'nexusai-backend',
+    message: 'Backend API server is running',
   });
 });
 
