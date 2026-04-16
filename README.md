@@ -16,7 +16,7 @@ NexusAI is a modern full-stack chatbot app with authentication, persistent conve
 ## Tech Stack
 
 - Frontend: React, Vite, Tailwind CSS, Framer Motion
-- Backend: Express, MongoDB, Mongoose, JWT
+- Backend: Express, Cloudant, JWT
 
 ## Local Setup
 
@@ -60,17 +60,6 @@ cd frontend
 npm run dev
 ```
 
-## AWS Elastic Beanstalk
-
-This repo is configured for the Elastic Beanstalk Node.js platform.
-
-The production flow is:
-
-1. EB runs `npm install` in the repo root.
-2. Root `postinstall` installs backend and frontend dependencies.
-3. Root `postinstall` builds `frontend/dist`.
-4. `Procfile` starts the backend with `npm start`.
-5. `backend/server.js` serves the API and the built frontend.
 
 ### What to deploy
 

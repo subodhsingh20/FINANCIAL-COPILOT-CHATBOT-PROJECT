@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { apiUrl } from '../lib/api';
 
 export const AuthContext = createContext();
@@ -7,16 +7,30 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async (token) => {
+  const normalizeUser = (userData) => {
+    if (!userData) {
+      return null;
+    }
+
+    const userId = userData._id || userData.id || userData.userId || null;
+
+    return {
+      ...userData,
+      _id: userId,
+      id: userId,
+    };
+  };
+
+  const fetchUser = useCallback(async (token) => {
     try {
       const res = await fetch(apiUrl('/api/user'), {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (res.ok) {
         const userData = await res.json();
-        setUser(userData);
+        setUser(normalizeUser(userData));
       } else {
         setUser(null);
         localStorage.removeItem('token');
@@ -26,7 +40,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('token');
     }
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -35,10 +49,10 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [fetchUser]);
 
   const login = (userData, token) => {
-    setUser(userData);
+    setUser(normalizeUser(userData));
     if (token) {
       localStorage.setItem('token', token);
     }

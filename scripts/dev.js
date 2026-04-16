@@ -1,7 +1,9 @@
 const { spawn } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
+const backendDir = path.join(rootDir, 'backend');
 
 function runProcess(name, command, args, cwd) {
   const child = spawn(command, args, {
@@ -29,12 +31,53 @@ function runProcess(name, command, args, cwd) {
   return child;
 }
 
-const processes = [
-  runProcess('backend', 'npm', ['--prefix', 'backend', 'run', 'start'], rootDir),
-  runProcess('frontend', 'npm', ['--prefix', 'frontend', 'run', 'dev'], rootDir),
-];
+let backendProcess = null;
+const frontendProcess = runProcess('frontend', 'npm', ['--prefix', 'frontend', 'run', 'dev'], rootDir);
+
+function startBackend() {
+  backendProcess = runProcess('backend', 'npm', ['--prefix', 'backend', 'run', 'start'], rootDir);
+}
+
+startBackend();
 
 let isShuttingDown = false;
+let restartTimer = null;
+
+function restartBackend() {
+  if (isShuttingDown) {
+    return;
+  }
+
+  if (restartTimer) {
+    clearTimeout(restartTimer);
+  }
+
+  restartTimer = setTimeout(() => {
+    if (backendProcess && !backendProcess.killed) {
+      backendProcess.once('exit', () => {
+        startBackend();
+      });
+      backendProcess.kill('SIGINT');
+    } else {
+      startBackend();
+    }
+  }, 250);
+}
+
+try {
+  fs.watch(backendDir, { recursive: true }, (eventType, filename) => {
+    if (!filename) {
+      return;
+    }
+
+    if (filename.endsWith('.js') || filename.endsWith('.json') || filename.endsWith('.env')) {
+      process.stdout.write(`[watcher] backend change detected: ${filename}\n`);
+      restartBackend();
+    }
+  });
+} catch (error) {
+  process.stderr.write(`[watcher] backend file watch unavailable: ${error.message}\n`);
+}
 
 function shutdown(exitCode = 0) {
   if (isShuttingDown) {
@@ -43,7 +86,8 @@ function shutdown(exitCode = 0) {
 
   isShuttingDown = true;
 
-  for (const child of processes) {
+  const children = [backendProcess, frontendProcess].filter(Boolean);
+  for (const child of children) {
     if (!child.killed) {
       child.kill('SIGINT');
     }

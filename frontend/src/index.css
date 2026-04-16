@@ -38,6 +38,18 @@
       linear-gradient(180deg, #f7fafc 0%, #eaf1ff 100%);
   }
 
+  .dark body {
+    background:
+      radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 26%),
+      radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.18), transparent 32%),
+      linear-gradient(180deg, #020617 0%, #0f172a 52%, #111827 100%);
+    color: #e2e8f0;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
   h1,
   h2,
   h3,

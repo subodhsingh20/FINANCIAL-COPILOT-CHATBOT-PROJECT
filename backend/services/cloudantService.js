@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const cloudantUrl = process.env.CLOUDANT_URL;
 const usersDb = process.env.CLOUDANT_USERS_DB || 'users';
 const conversationsDb = process.env.CLOUDANT_CONVERSATIONS_DB || 'conversations';
+const portfoliosDb = process.env.CLOUDANT_PORTFOLIOS_DB || 'portfolios';
 
 function getCloudantConfig() {
   if (!cloudantUrl) {
@@ -117,6 +118,28 @@ function normalizeUserDocument(document) {
   };
 }
 
+function normalizePortfolioAsset(asset) {
+  return {
+    symbol: String(asset.symbol || '').trim().toUpperCase(),
+    type: String(asset.type || '').trim().toUpperCase(),
+    quantity: Number(asset.quantity) || 0,
+    buyPrice: Number(asset.buyPrice) || 0,
+  };
+}
+
+function normalizePortfolioDocument(document) {
+  return {
+    _id: document._id,
+    _rev: document._rev,
+    userId: document.userId,
+    assets: Array.isArray(document.assets)
+      ? document.assets.map(normalizePortfolioAsset)
+      : [],
+    createdAt: document.createdAt || new Date().toISOString(),
+    updatedAt: document.updatedAt || document.createdAt || new Date().toISOString(),
+  };
+}
+
 async function ensureDatabase(name) {
   await cloudantRequest(`/${encodeURIComponent(name)}`, {
     method: 'PUT',
@@ -154,11 +177,22 @@ async function ensureIndexes() {
       type: 'json',
     },
   });
+
+  await cloudantRequest(`/${encodeURIComponent(portfoliosDb)}/_index`, {
+    method: 'POST',
+    expectedStatus: [200],
+    body: {
+      index: { fields: ['type', 'userId', 'updatedAt'] },
+      name: 'portfolios-by-user-updated',
+      type: 'json',
+    },
+  });
 }
 
 async function initializeCloudant() {
   await ensureDatabase(usersDb);
   await ensureDatabase(conversationsDb);
+  await ensureDatabase(portfoliosDb);
   await ensureIndexes();
 }
 
@@ -334,6 +368,76 @@ async function deleteConversation(id, userId) {
   return true;
 }
 
+async function getPortfolioById(id) {
+  const document = await getDocument(portfoliosDb, id);
+  if (!document || document.type !== 'portfolio') {
+    return null;
+  }
+
+  return normalizePortfolioDocument(document);
+}
+
+async function getPortfolioByUserId(userId) {
+  const document = await findOne(portfoliosDb, { type: 'portfolio', userId });
+  return document ? normalizePortfolioDocument(document) : null;
+}
+
+async function createPortfolio({ userId, assets = [] }) {
+  const now = new Date().toISOString();
+  const existing = await findOne(portfoliosDb, { type: 'portfolio', userId });
+  const normalizedAssets = assets.map(normalizePortfolioAsset);
+
+  const document = existing
+    ? {
+        ...existing,
+        assets: normalizedAssets,
+        updatedAt: now,
+      }
+    : {
+        _id: createDocumentId('portfolio'),
+        type: 'portfolio',
+        userId,
+        assets: normalizedAssets,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+  const saved = await saveDocument(portfoliosDb, document);
+
+  return {
+    portfolio: normalizePortfolioDocument(saved),
+    created: !existing,
+  };
+}
+
+async function updatePortfolio(id, userId, updates) {
+  const existing = await getDocument(portfoliosDb, id);
+  if (!existing || existing.type !== 'portfolio' || existing.userId !== userId) {
+    return null;
+  }
+
+  const nextDocument = {
+    ...existing,
+    assets: Array.isArray(updates.assets)
+      ? updates.assets.map(normalizePortfolioAsset)
+      : existing.assets,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const saved = await saveDocument(portfoliosDb, nextDocument);
+  return normalizePortfolioDocument(saved);
+}
+
+async function deletePortfolio(id, userId) {
+  const existing = await getDocument(portfoliosDb, id);
+  if (!existing || existing.type !== 'portfolio' || existing.userId !== userId) {
+    return false;
+  }
+
+  await deleteDocument(portfoliosDb, existing._id, existing._rev);
+  return true;
+}
+
 module.exports = {
   initializeCloudant,
   getUserByEmail,
@@ -346,4 +450,10 @@ module.exports = {
   updateConversation,
   deleteConversation,
   normalizeConversationDocument,
+  getPortfolioById,
+  getPortfolioByUserId,
+  createPortfolio,
+  updatePortfolio,
+  deletePortfolio,
+  normalizePortfolioDocument,
 };

@@ -7,6 +7,9 @@ const path = require('path');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const conversationRoutes = require('./routes/conversations');
+const portfolioRoutes = require('./routes/portfolio.routes');
+const analysisRoutes = require('./routes/analysis.routes');
+const marketRoutes = require('./routes/market.routes');
 const { initializeCloudant } = require('./services/cloudantService');
 
 const app = express();
@@ -147,6 +150,9 @@ app.get('/api/weather', async (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api', portfolioRoutes);
+app.use('/api', analysisRoutes);
+app.use('/api/market', marketRoutes);
 
 app.get('/', (req, res) => {
   res.send('Backend server is running');
