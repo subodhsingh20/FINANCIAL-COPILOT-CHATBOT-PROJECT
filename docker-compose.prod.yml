@@ -1,0 +1,18 @@
+services:
+  backend:
+    image: ${DOCKERHUB_USERNAME}/nexusai-backend:latest
+    container_name: nexusai-backend
+    env_file:
+      - ./backend/.env.prod
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/nexusai-frontend:latest
+    container_name: nexusai-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped

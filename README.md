@@ -53,24 +53,33 @@ npm run dev
 
 ## Deployment
 
-The app is now split across two services:
+This repository now supports a Docker-based CI/CD flow:
 
-- Frontend: AWS Amplify
-- Backend API: AWS Elastic Beanstalk
+- VS Code -> GitHub -> Docker Hub
+- GitHub Actions builds and pushes two images:
+  - `nexusai-backend`
+  - `nexusai-frontend`
 
-### Frontend
+### CI/CD flow
 
-Set this Amplify environment variable:
+1. Push code from VS Code to GitHub.
+2. GitHub Actions runs backend and frontend checks.
+3. GitHub Actions builds the Docker images.
+4. GitHub Actions pushes the images to Docker Hub.
+5. Your runtime platform pulls the images from Docker Hub.
+
+### Required GitHub settings
+
+Add these repository secrets:
 
 ```env
-VITE_API_BASE_URL=https://your-backend.elasticbeanstalk.com
+DOCKERHUB_USERNAME=your-dockerhub-username
+DOCKERHUB_TOKEN=your-dockerhub-access-token
 ```
 
-Amplify uses the root [`amplify.yml`](./amplify.yml) file to build the app from `frontend/`.
+### Runtime environment variables
 
-### Backend
-
-Set these in Elastic Beanstalk environment properties:
+Set these on the platform that runs the backend container:
 
 ```env
 CLOUDANT_URL=https://username:password@your-cloudant-host
@@ -78,22 +87,23 @@ CLOUDANT_USERS_DB=users
 CLOUDANT_CONVERSATIONS_DB=conversations
 CLOUDANT_PORTFOLIOS_DB=portfolios
 JWT_SECRET=replace-with-a-long-random-secret
-CORS_ORIGIN=http://localhost:5173,https://your-frontend.amplifyapp.com
+CORS_ORIGIN=http://localhost:5173,https://your-frontend-url
 AI_API_KEY=your-gemini-api-key
-AI_MODEL=gemini-2.5-flash
+AI_MODEL=gemini-2.0-flash
 AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 ALPHA_VANTAGE_API_KEY=
 PRICE_CACHE_TTL_MS=120000
 ```
 
-Use `/api/health` as the health check path.
+Use `/api/health` as the health check path for the backend service.
 
-### CI/CD flow
+### Run from Docker Hub
 
-1. Push code from VS Code to GitHub.
-2. GitHub Actions runs frontend and backend checks.
-3. GitHub Actions deploys the backend package to Elastic Beanstalk.
-4. Amplify rebuilds the frontend from the same GitHub branch.
+For a production-style Docker Compose deployment, copy `backend/.env.prod.example` to `backend/.env.prod`, fill in your secrets, set `DOCKERHUB_USERNAME` in your shell, then start the published images:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
 
 ## Checks
 
@@ -136,5 +146,5 @@ docker push yourdockerhubuser/nexusai-frontend
 ## Notes
 
 - `backend/server.js` is API-only now.
-- Keep secrets in AWS environment variables, not in GitHub.
-- CORS must include your Amplify domain and localhost for development.
+- Keep secrets in your runtime environment, not in GitHub.
+- CORS must include your frontend domain and localhost for development.

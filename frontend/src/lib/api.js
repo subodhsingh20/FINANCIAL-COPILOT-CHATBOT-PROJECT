@@ -2,7 +2,7 @@ const normalizedBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$
 
 export function apiUrl(path) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  return `${normalizedBaseUrl}${normalizedPath}`;
+  return normalizedBaseUrl ? `${normalizedBaseUrl}${normalizedPath}` : normalizedPath;
 }
 
 export async function apiRequest(path, options = {}, token) {
