@@ -17,7 +17,7 @@ function loadEnvFile(filePath, { onlyMissing = false } = {}) {
   return true;
 }
 
-loadEnvFile(path.join(__dirname, '.env'));
+loadEnvFile(path.join(__dirname, '.env'), { onlyMissing: true });
 loadEnvFile(path.join(__dirname, '.env.prod'), { onlyMissing: true });
 
 const express = require('express');
