@@ -17,6 +17,30 @@ function shouldGenerateTitle(title) {
   return normalizedTitle === 'new chat' || normalizedTitle === 'untitled chat';
 }
 
+function buildLocalConversation({
+  conversationId,
+  userId,
+  title,
+  systemPrompt,
+  temperature,
+  normalizedMessages,
+  assistantMessage,
+}) {
+  const now = new Date().toISOString();
+  return {
+    _id: conversationId || `conversation-local-${Date.now()}`,
+    userId,
+    title,
+    settings: {
+      systemPrompt,
+      temperature,
+    },
+    messages: [...normalizedMessages, assistantMessage],
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { conversationId, messages = [], systemPrompt, temperature, title } = req.body;
@@ -59,30 +83,49 @@ router.post('/', authMiddleware, async (req, res) => {
       : null;
 
     const resolvedTitle = generatedTitle || (typeof title === 'string' && title.trim() ? title.trim() : 'New chat');
+    const conversationPayload = {
+      userId: req.user.userId,
+      title: resolvedTitle,
+      settings: {
+        systemPrompt: finalSystemPrompt,
+        temperature: typeof temperature === 'number' ? temperature : 0.7,
+      },
+      messages: [...normalizedMessages, assistantMessage],
+    };
 
-    if (conversationId) {
-      conversation = await updateConversation(conversationId, req.user.userId, {
-        title: resolvedTitle,
-        settings: {
-          systemPrompt: finalSystemPrompt,
-          temperature: typeof temperature === 'number' ? temperature : 0.7,
-        },
-        messages: [...normalizedMessages, assistantMessage],
-      });
-    } else {
-      conversation = await createConversation({
+    try {
+      if (conversationId) {
+        conversation = await updateConversation(conversationId, req.user.userId, {
+          title: resolvedTitle,
+          settings: conversationPayload.settings,
+          messages: conversationPayload.messages,
+        });
+      } else {
+        conversation = await createConversation(conversationPayload);
+      }
+    } catch (saveError) {
+      console.warn('Conversation save failed, returning local chat response:', saveError.message);
+      conversation = buildLocalConversation({
+        conversationId,
         userId: req.user.userId,
         title: resolvedTitle,
-        settings: {
-          systemPrompt: finalSystemPrompt,
-          temperature: typeof temperature === 'number' ? temperature : 0.7,
-        },
-        messages: [...normalizedMessages, assistantMessage],
+        systemPrompt: finalSystemPrompt,
+        temperature: typeof temperature === 'number' ? temperature : 0.7,
+        normalizedMessages,
+        assistantMessage,
       });
     }
 
     if (!conversation) {
-      return res.status(404).json({ message: 'Conversation not found' });
+      conversation = buildLocalConversation({
+        conversationId,
+        userId: req.user.userId,
+        title: resolvedTitle,
+        systemPrompt: finalSystemPrompt,
+        temperature: typeof temperature === 'number' ? temperature : 0.7,
+        normalizedMessages,
+        assistantMessage,
+      });
     }
 
     return res.json({

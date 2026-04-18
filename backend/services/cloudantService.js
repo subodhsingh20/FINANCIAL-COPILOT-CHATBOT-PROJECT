@@ -131,6 +131,7 @@ function normalizeUserDocument(document) {
 function normalizePortfolioAsset(asset) {
   return {
     symbol: String(asset.symbol || '').trim().toUpperCase(),
+    name: String(asset.name || '').trim(),
     type: String(asset.type || '').trim().toUpperCase(),
     quantity: Number(asset.quantity) || 0,
     buyPrice: Number(asset.buyPrice) || 0,

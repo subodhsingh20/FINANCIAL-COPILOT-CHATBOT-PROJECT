@@ -46,6 +46,7 @@ async function authorizedFetch(path, options = {}) {
       Authorization: `Bearer ${token}`,
       ...(options.headers || {}),
     },
+    body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
   const data = await response.json().catch(() => null);
@@ -125,7 +126,7 @@ export const ChatProvider = ({ children }) => {
 
     const savedConversation = normalizeConversation(await authorizedFetch('/api/conversations', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: payload,
     }));
 
     setConversations((previous) => [savedConversation, ...previous]);
@@ -166,7 +167,7 @@ export const ChatProvider = ({ children }) => {
     try {
       const updatedConversation = normalizeConversation(await authorizedFetch(`/api/conversations/${conversationId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ title: nextTitle }),
+        body: { title: nextTitle },
       }));
 
       setConversations((previous) => previous.map((conversation) => (
@@ -202,7 +203,7 @@ export const ChatProvider = ({ children }) => {
     try {
       const data = await authorizedFetch('/api/chat', {
         method: 'POST',
-        body: JSON.stringify({
+        body: {
           conversationId: activeConversation.id,
           title: nextTitle,
           messages: submittedMessages.map((message) => ({
@@ -215,7 +216,7 @@ export const ChatProvider = ({ children }) => {
           })),
           systemPrompt: activeConversation.settings.systemPrompt,
           temperature: activeConversation.settings.temperature,
-        }),
+        },
       });
 
       const savedConversation = normalizeConversation(data.conversation);

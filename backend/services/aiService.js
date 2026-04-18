@@ -158,21 +158,26 @@ async function generateRemoteChatCompletion({ messages, systemPrompt, temperatur
     .map((message) => `${message.role.toUpperCase()}: ${message.content}`)
     .join('\n\n');
 
-  const geminiResponse = await generateGeminiContent({
-    systemPrompt,
-    userText: payloadText,
-    temperature: finalTemperature,
-    model,
-    baseUrl,
-    apiKey,
-  });
+  try {
+    const geminiResponse = await generateGeminiContent({
+      systemPrompt,
+      userText: payloadText,
+      temperature: finalTemperature,
+      model,
+      baseUrl,
+      apiKey,
+    });
 
-  return {
-    content: geminiResponse.content,
-    model: geminiResponse.model,
-    provider: geminiResponse.provider,
-    usage: geminiResponse.usage,
-  };
+    return {
+      content: geminiResponse.content,
+      model: geminiResponse.model,
+      provider: geminiResponse.provider,
+      usage: geminiResponse.usage,
+    };
+  } catch (error) {
+    console.warn('Gemini chat generation failed, falling back to demo mode:', error.message);
+    return generateDemoChatCompletion({ messages, systemPrompt });
+  }
 }
 
 async function generateConversationTitle({ messages }) {

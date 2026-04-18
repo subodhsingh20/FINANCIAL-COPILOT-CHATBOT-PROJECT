@@ -12,6 +12,7 @@ function sanitizeSymbol(symbol) {
 function sanitizeAsset(asset) {
   return {
     symbol: sanitizeSymbol(asset.symbol),
+    name: String(asset.name || '').trim(),
     type: String(asset.type || '').trim().toUpperCase(),
     quantity: toNumber(asset.quantity),
     buyPrice: toNumber(asset.buyPrice),

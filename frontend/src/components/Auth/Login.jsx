@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { apiUrl } from '../../lib/api';
+import { apiRequest } from '../../lib/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,24 +15,15 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await fetch(apiUrl('/api/login'), {
+      const data = await apiRequest('/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+        body: { email, password },
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.message || 'Login failed');
-        return;
-      }
 
       login(data.user, data.token);
       navigate('/chat');
-    } catch {
-      setError('Login failed. Please try again.');
+    } catch (requestError) {
+      setError(requestError.message || 'Login failed. Please try again.');
     }
   };
 

@@ -1,4 +1,24 @@
-require('dotenv').config({ path: __dirname + '/.env' });
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
+
+function loadEnvFile(filePath, { onlyMissing = false } = {}) {
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+
+  const parsed = dotenv.parse(fs.readFileSync(filePath));
+  Object.entries(parsed).forEach(([key, value]) => {
+    if (!onlyMissing || !process.env[key]) {
+      process.env[key] = value;
+    }
+  });
+
+  return true;
+}
+
+loadEnvFile(path.join(__dirname, '.env'));
+loadEnvFile(path.join(__dirname, '.env.prod'), { onlyMissing: true });
 
 const express = require('express');
 const cors = require('cors');
@@ -32,6 +52,12 @@ if (isPlaceholderCloudantUrl(process.env.CLOUDANT_URL)) {
 if (!process.env.JWT_SECRET) {
   console.error('Missing required environment variable: JWT_SECRET');
   process.exit(1);
+}
+
+if (process.env.AI_API_KEY) {
+  console.log(`AI provider configured: ${process.env.AI_MODEL || 'gemini-2.5-flash'}`);
+} else {
+  console.warn('AI_API_KEY is missing at runtime. Chat will use demo mode until it is provided.');
 }
 
 const allowedOrigins = (process.env.CORS_ORIGIN || '')
