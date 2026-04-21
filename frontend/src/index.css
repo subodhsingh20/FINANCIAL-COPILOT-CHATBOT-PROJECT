@@ -11,6 +11,7 @@
     color-scheme: light;
     --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", sans-serif;
     --font-display: "Sora", "Inter", "Segoe UI Variable", "Segoe UI", sans-serif;
+    --app-nav-height: 4rem;
     font-family: var(--font-sans);
   }
 

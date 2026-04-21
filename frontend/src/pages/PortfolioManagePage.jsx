@@ -66,7 +66,7 @@ function PortfolioManagePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-3 py-6 pt-20 sm:px-4 sm:py-8 sm:pt-24">
+    <div className="mx-auto max-w-6xl px-3 py-6 pt-[var(--app-nav-height)] sm:px-4 sm:py-8">
       <PortfolioForm
         initialPortfolio={portfolio}
         submitting={submitting}

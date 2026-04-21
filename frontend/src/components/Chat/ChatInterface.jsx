@@ -148,19 +148,21 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.88),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.24),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eaf1ff_100%)] pt-16 text-slate-900 dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.14),_transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.18),_transparent_34%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)] dark:text-slate-100">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.88),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.24),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eaf1ff_100%)] pt-[var(--app-nav-height)] text-slate-900 dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.14),_transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.18),_transparent_34%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)] dark:text-slate-100">
       {sidebarOpen ? (
         <button
           type="button"
           aria-label="Close sidebar overlay"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-slate-950/30 backdrop-blur-[1px] md:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 bg-slate-950/30 backdrop-blur-[1px] md:hidden"
+          style={{ top: 'var(--app-nav-height)' }}
         />
       ) : null}
 
-      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-[1700px]">
+      <div className="mx-auto flex min-h-[calc(100dvh-var(--app-nav-height))] max-w-[1700px]">
         <aside
-          className={`fixed inset-y-16 left-0 z-40 w-[min(88vw,320px)] border-r border-white/45 bg-white/72 shadow-[0_24px_80px_rgba(148,163,184,0.22)] backdrop-blur-2xl transition md:static md:w-[280px] md:translate-x-0 dark:border-white/10 dark:bg-slate-950/45 dark:shadow-[0_28px_90px_rgba(2,6,23,0.55)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+          className={`fixed bottom-0 left-0 z-40 w-[min(88vw,320px)] border-r border-white/45 bg-white/72 shadow-[0_24px_80px_rgba(148,163,184,0.22)] backdrop-blur-2xl transition md:static md:w-[280px] md:translate-x-0 dark:border-white/10 dark:bg-slate-950/45 dark:shadow-[0_28px_90px_rgba(2,6,23,0.55)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+          style={{ top: 'var(--app-nav-height)' }}
         >
           <div className="flex h-full flex-col">
             <div className="border-b border-white/45 p-4 dark:border-white/10">
@@ -284,7 +286,7 @@ const ChatInterface = () => {
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-white/46 backdrop-blur-xl dark:bg-slate-950/20">
-          <header className="flex items-center justify-between border-b border-white/45 bg-white/48 px-4 py-3 backdrop-blur-xl md:px-6 dark:border-white/10 dark:bg-slate-950/10">
+          <header className="flex items-center justify-between border-b border-white/45 bg-white/48 px-3 py-3 backdrop-blur-xl sm:px-4 md:px-6 dark:border-white/10 dark:bg-slate-950/10">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -294,7 +296,7 @@ const ChatInterface = () => {
                 Menu
               </button>
               <div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                <div className="max-w-[12rem] truncate text-sm font-semibold text-slate-900 dark:text-white">
                   {currentConversation?.title || 'New chat'}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400">
@@ -307,7 +309,7 @@ const ChatInterface = () => {
           </header>
 
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-4 py-6 md:px-6">
+            <div className="mx-auto flex min-h-full w-full max-w-4xl flex-col px-3 py-4 sm:px-4 sm:py-6 md:px-6">
               <MessageList
                 messages={conversationMessages}
                 quickPrompts={QUICK_PROMPTS}
@@ -319,7 +321,7 @@ const ChatInterface = () => {
             </div>
           </div>
 
-          <div className="border-t border-white/45 bg-white/38 px-4 py-4 backdrop-blur-xl md:px-6 dark:border-white/10 dark:bg-slate-950/10">
+          <div className="border-t border-white/45 bg-white/38 px-3 py-3 backdrop-blur-xl sm:px-4 sm:py-4 md:px-6 dark:border-white/10 dark:bg-slate-950/10">
             <div className="mx-auto w-full max-w-4xl">
               <MessageInput
                 draft={draft}

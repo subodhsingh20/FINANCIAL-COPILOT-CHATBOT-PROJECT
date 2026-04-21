@@ -4,24 +4,24 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const EmptyState = ({ quickPrompts, onPromptClick }) => (
-  <div className="flex flex-1 items-center justify-center py-10">
+  <div className="flex flex-1 items-start justify-center py-5 sm:items-center sm:py-10">
     <div className="w-full max-w-3xl text-center">
-      <div className="mx-auto mb-6 inline-flex items-center rounded-full border border-white/60 bg-white/78 px-4 py-1.5 text-sm text-slate-600 shadow-[0_12px_28px_rgba(148,163,184,0.14)] backdrop-blur dark:border-white/10 dark:bg-white/6 dark:text-slate-300">
+      <div className="mx-auto mb-5 inline-flex items-center rounded-full border border-white/60 bg-white/78 px-4 py-1.5 text-sm text-slate-600 shadow-[0_12px_28px_rgba(148,163,184,0.14)] backdrop-blur dark:border-white/10 dark:bg-white/6 dark:text-slate-300">
         Quick chat
       </div>
-      <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white md:text-4xl">
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white sm:text-3xl md:text-4xl">
         How can I help today?
       </h1>
-      <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400 md:text-base">
+      <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400 md:mt-4 md:text-base md:leading-7">
         Ask about everyday things like messages, meals, plans, reminders, or a quick joke.
       </p>
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-3">
         {quickPrompts.map((prompt) => (
           <button
             key={prompt}
             type="button"
             onClick={() => onPromptClick(prompt)}
-            className="rounded-2xl border border-white/60 bg-white/76 px-4 py-4 text-center text-sm font-medium text-slate-700 shadow-[0_18px_40px_rgba(148,163,184,0.14)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white dark:border-white/10 dark:bg-white/6 dark:text-slate-200 dark:hover:bg-white/10"
+            className="rounded-2xl border border-white/60 bg-white/76 px-4 py-3 text-center text-sm font-medium leading-6 text-slate-700 shadow-[0_18px_40px_rgba(148,163,184,0.14)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white dark:border-white/10 dark:bg-white/6 dark:text-slate-200 dark:hover:bg-white/10 sm:py-4"
           >
             {prompt}
           </button>
@@ -62,7 +62,7 @@ const MessageBubble = ({ message, onCopy, onRegenerate }) => {
   return (
     <article className={`flex ${isAssistant ? 'justify-start' : 'justify-end'}`}>
       <div
-        className={`w-full ${isAssistant ? 'max-w-full px-1 py-3 sm:px-2' : 'max-w-3xl px-5 py-4'} rounded-3xl ${
+        className={`w-full ${isAssistant ? 'max-w-full px-1 py-2 sm:px-2 sm:py-3' : 'max-w-[92%] px-3 py-3 sm:max-w-3xl sm:px-5 sm:py-4'} rounded-3xl ${
           isAssistant
             ? 'bg-transparent'
             : 'border border-white/60 bg-white/84 shadow-[0_20px_44px_rgba(148,163,184,0.16)] backdrop-blur dark:border-white/10 dark:bg-white/8 dark:shadow-[0_18px_42px_rgba(2,6,23,0.3)]'
@@ -201,7 +201,7 @@ const MessageList = ({ messages, quickPrompts, onPromptClick, onCopy, onRegenera
   }
 
   return (
-    <div className="space-y-7 py-2 sm:space-y-8">
+    <div className="space-y-5 py-2 sm:space-y-8">
       {messages.map((message) => (
         <MessageBubble
           key={message.id}
