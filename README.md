@@ -1,6 +1,6 @@
-# NexusAI Portfolio Dashboard
+# NOVA AI Portfolio Dashboard
 
-NexusAI is a full-stack portfolio analysis app with:
+NOVA AI is a full-stack portfolio analysis app with:
 
 - React frontend
 - Express backend
@@ -57,8 +57,8 @@ This repository now supports a Docker-based CI/CD flow:
 
 - VS Code -> GitHub -> Docker Hub
 - GitHub Actions builds and pushes two images:
-  - `nexusai-backend`
-  - `nexusai-frontend`
+  - `nova-ai-backend`
+  - `nova-ai-frontend`
 
 ### CI/CD flow
 
@@ -137,10 +137,10 @@ Optional Docker Hub push:
 
 ```bash
 docker login
-docker build -t yourdockerhubuser/nexusai-backend ./backend
-docker build -t yourdockerhubuser/nexusai-frontend --build-arg VITE_API_BASE_URL=http://localhost:5000 ./frontend
-docker push yourdockerhubuser/nexusai-backend
-docker push yourdockerhubuser/nexusai-frontend
+docker build -t yourdockerhubuser/nova-ai-backend ./backend
+docker build -t yourdockerhubuser/nova-ai-frontend --build-arg VITE_API_BASE_URL=http://localhost:5000 ./frontend
+docker push yourdockerhubuser/nova-ai-backend
+docker push yourdockerhubuser/nova-ai-frontend
 ```
 
 ## Notes

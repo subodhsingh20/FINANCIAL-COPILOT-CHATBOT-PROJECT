@@ -57,7 +57,7 @@ function PortfolioDashboard({
     );
   }
 
-  const title = portfolio?.userId ? `NexusAI Portfolio Dashboard` : 'NexusAI Portfolio Dashboard';
+  const title = portfolio?.userId ? `NOVA AI Portfolio Dashboard` : 'NOVA AI Portfolio Dashboard';
   const subtitle = portfolio?.assets?.length
     ? `${portfolio.assets.length} Indian holdings tracked across value, score, and risk.`
     : 'Start with the sample holdings to review allocation, analysis notes, and risk balance.';
@@ -83,7 +83,7 @@ function PortfolioDashboard({
     return (
       <MotionPanel initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
         <Header
-          title="NexusAI Portfolio Dashboard"
+          title="NOVA AI Portfolio Dashboard"
           subtitle="No portfolio is saved right now. Create a new one to start tracking holdings."
           sourceLabel="Live Data: NSE"
           aiLabel="Fallback"

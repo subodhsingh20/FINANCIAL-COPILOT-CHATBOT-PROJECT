@@ -41,7 +41,7 @@ const Register = () => {
             <div className="mb-10">
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Create account</p>
               <h2 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                Join NexusAI
+                Join NOVA AI
               </h2>
               <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">
                 Create your workspace and start saving conversations with OpenRouter GPT-4o.

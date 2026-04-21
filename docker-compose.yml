@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: nexusai-backend
+    container_name: nova-ai-backend
     env_file:
       - ./backend/.env
     ports:
@@ -12,7 +12,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    container_name: nexusai-frontend
+    container_name: nova-ai-frontend
     depends_on:
       - backend
     ports:

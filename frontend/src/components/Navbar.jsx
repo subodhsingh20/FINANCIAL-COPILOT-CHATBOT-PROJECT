@@ -17,7 +17,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link to="/portfolio" className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-              NexusAI
+              NOVA AI
             </Link>
             <div className="hidden rounded-full border border-white/60 bg-white/72 px-2.5 py-1 text-xs text-slate-600 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300 sm:block">
               Financial Copilot

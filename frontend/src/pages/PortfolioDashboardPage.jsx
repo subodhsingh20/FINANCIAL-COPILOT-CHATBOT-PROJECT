@@ -5,7 +5,7 @@ import { deletePortfolio, fetchCurrentPortfolio, analyzePortfolio } from '../lib
 import PortfolioDashboard from '../components/Portfolio/PortfolioDashboard';
 
 const DEMO_PORTFOLIO = {
-  _id: 'demo-nexusai-portfolio',
+  _id: 'demo-nova-ai-portfolio',
   userId: 'demo-user',
   assets: [
     { symbol: 'TATAGOLD.NS', type: 'ETF', quantity: 1, buyPrice: 5000 },

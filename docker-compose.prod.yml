@@ -1,7 +1,7 @@
 services:
   backend:
-    image: subodhsingh20/nexusai-backend:latest
-    container_name: nexusai-backend
+    image: subodhsingh20/nova-ai-backend:latest
+    container_name: nova-ai-backend
     env_file:
       - ./backend/.env.prod
     ports:
@@ -9,8 +9,8 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: subodhsingh20/nexusai-frontend:latest
-    container_name: nexusai-frontend
+    image: subodhsingh20/nova-ai-frontend:latest
+    container_name: nova-ai-frontend
     depends_on:
       - backend
     ports:

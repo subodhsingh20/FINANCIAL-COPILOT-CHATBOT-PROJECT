@@ -168,7 +168,7 @@ async function fetchJson(url, headers = {}) {
   const response = await fetch(url, {
     headers: {
       Accept: 'application/json',
-      'User-Agent': 'NexusAI-Financial-Copilot/1.0',
+      'User-Agent': 'NOVA-AI-Financial-Copilot/1.0',
       ...headers,
     },
   });
@@ -183,7 +183,7 @@ async function fetchJson(url, headers = {}) {
 
 async function fetchNseJson(path) {
   return fetchJson(`${NSE_API_BASE_URL}${path}`, {
-    'User-Agent': 'NexusAI-Financial-Copilot/1.0',
+    'User-Agent': 'NOVA-AI-Financial-Copilot/1.0',
   });
 }
 

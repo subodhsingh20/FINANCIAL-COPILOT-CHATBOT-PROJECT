@@ -139,7 +139,7 @@ app.use('/api/market', marketRoutes);
 app.get('/', (req, res) => {
   res.json({
     status: 'ok',
-    service: 'nexusai-backend',
+    service: 'nova-ai-backend',
     message: 'Backend API server is running',
   });
 });
