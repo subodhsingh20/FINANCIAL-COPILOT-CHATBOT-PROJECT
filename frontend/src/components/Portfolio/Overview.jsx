@@ -42,7 +42,7 @@ function Overview({ portfolioValue = 0, portfolioScore = 0, projections = {} }) 
       <MetricCard
         label="Portfolio Score"
         value={`${portfolioScore}/10`}
-        hint="AI-generated health score"
+        hint="Calculated from concentration, diversification, and portfolio balance"
         accent="from-sky-500 to-indigo-500"
       />
       <ProjectionCard years={3} projection={projection3} accent="from-amber-500 to-orange-500" />

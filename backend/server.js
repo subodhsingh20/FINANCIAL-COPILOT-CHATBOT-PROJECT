@@ -54,10 +54,10 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
-if (process.env.AI_API_KEY) {
-  console.log(`AI provider configured: ${process.env.AI_MODEL || 'gemini-2.5-flash'}`);
+if (process.env.OPENROUTER_API_KEY) {
+  console.log(`AI provider configured: openrouter (${process.env.OPENROUTER_MODEL || process.env.AI_MODEL || 'openai/gpt-4o'})`);
 } else {
-  console.warn('AI_API_KEY is missing at runtime. Chat will use demo mode until it is provided.');
+  console.warn('OPENROUTER_API_KEY is missing at runtime. Chat will use demo mode until it is provided.');
 }
 
 const allowedOrigins = (process.env.CORS_ORIGIN || '')

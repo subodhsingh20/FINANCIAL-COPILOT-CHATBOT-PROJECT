@@ -35,12 +35,12 @@ const MessageInput = ({
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Message NexusAI"
+        placeholder="Message the assistant"
         className="max-h-[220px] min-h-[24px] w-full resize-none border-0 bg-transparent px-2 py-2 text-[15px] text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-slate-500"
       />
 
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
           <button
             type="button"
             onClick={onToggleListening}
@@ -52,14 +52,14 @@ const MessageInput = ({
           >
             {isListening ? 'Listening' : 'Voice'}
           </button>
-          <span className="hidden sm:inline">Enter to send, Shift+Enter for a new line</span>
+          <span className="text-[11px] sm:text-xs">Enter to send, Shift+Enter for a new line</span>
         </div>
 
         <button
           type="button"
           disabled={disabled || !draft.trim()}
           onClick={() => onSubmit()}
-          className="rounded-xl bg-gradient-to-r from-slate-900 via-sky-900 to-indigo-900 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(30,41,59,0.2)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 dark:from-sky-400 dark:via-cyan-300 dark:to-indigo-400 dark:text-slate-950"
+          className="w-full rounded-xl bg-gradient-to-r from-slate-900 via-sky-900 to-indigo-900 px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(30,41,59,0.2)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto dark:from-sky-400 dark:via-cyan-300 dark:to-indigo-400 dark:text-slate-950"
         >
           {disabled ? 'Working...' : 'Send'}
         </button>

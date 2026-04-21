@@ -51,7 +51,7 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const finalSystemPrompt = typeof systemPrompt === 'string' && systemPrompt.trim()
       ? systemPrompt.trim()
-      : 'You are NexusAI, a modern AI assistant that is helpful, concise, practical, and honest. Format clearly and prefer actionable guidance.';
+      : 'You are a helpful, concise, practical, and honest chat assistant. Format clearly and prefer actionable guidance.';
 
     const completion = await generateChatCompletion({
       messages,

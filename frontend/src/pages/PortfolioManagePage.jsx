@@ -62,11 +62,11 @@ function PortfolioManagePage() {
   };
 
   if (authLoading || loading) {
-    return <div className="px-4 py-24 text-center text-slate-500">Loading portfolio form...</div>;
+    return <div className="px-4 py-20 text-center text-slate-500 sm:py-24">Loading portfolio form...</div>;
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 pt-24">
+    <div className="mx-auto max-w-6xl px-3 py-6 pt-20 sm:px-4 sm:py-8 sm:pt-24">
       <PortfolioForm
         initialPortfolio={portfolio}
         submitting={submitting}

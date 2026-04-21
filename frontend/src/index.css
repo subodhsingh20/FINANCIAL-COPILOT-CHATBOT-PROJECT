@@ -29,9 +29,10 @@
   body {
     margin: 0;
     min-width: 320px;
-    min-height: 100vh;
+    min-height: 100dvh;
     font-family: var(--font-sans);
     font-optical-sizing: auto;
+    overflow-x: hidden;
     background:
       radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 26%),
       radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.22), transparent 30%),

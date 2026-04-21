@@ -17,6 +17,7 @@ function PortfolioDashboard({
   loading = false,
   error = '',
   onEdit,
+  onDelete,
   onRefresh,
 }) {
   const MotionPanel = motion.div;
@@ -59,7 +60,7 @@ function PortfolioDashboard({
   const title = portfolio?.userId ? `NexusAI Portfolio Dashboard` : 'NexusAI Portfolio Dashboard';
   const subtitle = portfolio?.assets?.length
     ? `${portfolio.assets.length} Indian holdings tracked across value, score, and risk.`
-    : 'Start with the sample holdings to review allocation, AI notes, and risk balance.';
+    : 'Start with the sample holdings to review allocation, analysis notes, and risk balance.';
   const sourceLabel = analysis?.liveDataSource
     ? analysis.liveDataSource === 'nse-api-ruby' || analysis.liveDataSource === 'nse-api-ruby-fallback'
       ? 'Live Data: NSE'
@@ -67,11 +68,9 @@ function PortfolioDashboard({
     : portfolio?.userId
       ? 'Live Data: Demo'
       : 'Live Data: Demo';
-  const aiLabel = analysis?.aiSource === 'gemini'
-    ? 'Gemini'
-    : analysis?.aiSource === 'remote'
-      ? 'Remote'
-      : 'Fallback';
+  const aiLabel = analysis?.aiSource === 'fallback'
+    ? 'Deterministic'
+    : 'OpenRouter';
 
   const totalValue = analysis?.totalValue || 0;
   const score = analysis?.score ?? analysis?.aiInsights?.score ?? 0;
@@ -90,6 +89,7 @@ function PortfolioDashboard({
           aiLabel="Fallback"
           onRefresh={onRefresh}
           onEdit={onEdit}
+          onDelete={onDelete}
         />
 
         <div className="rounded-[1.75rem] border border-white/70 bg-white/85 p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5">
@@ -123,6 +123,7 @@ function PortfolioDashboard({
         aiLabel={aiLabel}
         onRefresh={onRefresh}
         onEdit={onEdit}
+        onDelete={onDelete}
       />
 
       <Overview

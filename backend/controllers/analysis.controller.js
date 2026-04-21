@@ -4,7 +4,6 @@ const {
 } = require('../services/cloudantService');
 const { getPricesForAssets } = require('../services/priceService');
 const { analyzePortfolio } = require('../services/portfolioAnalyzer');
-const { generatePortfolioInsights } = require('../services/aiService');
 const { validatePortfolioPayload } = require('../models/portfolio.model');
 
 function buildPriceMap(priceResult, assets) {
@@ -109,6 +108,47 @@ async function resolvePortfolio(reqBody, userId) {
   return getPortfolioByUserId(userId);
 }
 
+function buildFallbackInsights(data) {
+  const riskLevel = data?.riskLevel?.level || 'moderate';
+  const score = Math.max(
+    0,
+    Math.min(
+      10,
+      Math.round((data?.diversificationScore || 0) / 10 + (riskLevel === 'low' ? 2 : riskLevel === 'moderate' ? 1 : 0))
+    )
+  );
+
+  const risks = Array.isArray(data?.warnings) && data.warnings.length
+    ? data.warnings.slice(0, 3)
+    : ['No major structural issues detected in the current portfolio.'];
+
+  const suggestions = [
+    'Rebalance oversized positions to reduce concentration risk.',
+    'Add ETFs or broad market funds to improve diversification.',
+    'Review each holding for a clear role in the portfolio.',
+  ];
+
+  const projection = riskLevel === 'low'
+    ? 'Over five years, the portfolio should compound steadily if rebalancing discipline is maintained.'
+    : riskLevel === 'conservative'
+      ? 'Five-year upside should be reasonable, though gains may be more moderate than a growth-heavy mix.'
+      : riskLevel === 'high'
+        ? 'Five-year returns are more dependent on the largest holdings, so concentration control is important.'
+        : 'Five-year results are sensitive to concentration and market swings; better diversification can improve stability.';
+
+  return {
+    score,
+    risks,
+    suggestions,
+    projection,
+    keyMistakes: risks,
+    improvementSuggestions: suggestions,
+    fiveYearOutlook: projection,
+    provider: 'fallback',
+    aiSource: 'fallback',
+  };
+}
+
 async function analyzePortfolioController(req, res) {
   try {
     const portfolio = await resolvePortfolio(req.body, req.user.userId);
@@ -126,7 +166,7 @@ async function analyzePortfolioController(req, res) {
     const priceMap = buildPriceMap(priceResult, assets);
     const analysis = analyzePortfolio(assets, priceMap);
     const normalizedHoldings = buildNormalizedHoldings(assets, priceMap);
-    const aiInsights = await generatePortfolioInsights({
+    const aiInsights = buildFallbackInsights({
       ...analysis,
       portfolioId: portfolio._id,
       userId: portfolio.userId,
@@ -140,7 +180,7 @@ async function analyzePortfolioController(req, res) {
     const response = {
       currency: 'INR',
       liveDataSource: priceResult.source,
-      aiSource: aiInsights.aiSource || 'fallback',
+      aiSource: 'fallback',
       score: aiInsights.score,
       risks: aiInsights.risks || aiInsights.keyMistakes || [],
       suggestions: aiInsights.suggestions || aiInsights.improvementSuggestions || [],

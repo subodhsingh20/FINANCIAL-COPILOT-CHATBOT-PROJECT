@@ -106,7 +106,7 @@ function normalizeConversationDocument(document) {
     title: document.title || 'New chat',
     settings: {
       systemPrompt: document.settings?.systemPrompt
-        || 'You are NexusAI, a modern AI assistant. Be helpful, accurate, practical, and concise. Use markdown when it improves readability.',
+        || 'You are a helpful, accurate, practical, and concise chat assistant. Use markdown when it improves readability.',
       temperature: typeof document.settings?.temperature === 'number'
         ? document.settings.temperature
         : 0.7,
@@ -358,7 +358,7 @@ async function createConversation({ userId, title, settings, messages = [] }) {
     title: title || 'New chat',
     settings: {
       systemPrompt: settings?.systemPrompt
-        || 'You are NexusAI, a modern AI assistant. Be helpful, accurate, practical, and concise. Use markdown when it improves readability.',
+        || 'You are a helpful, accurate, practical, and concise chat assistant. Use markdown when it improves readability.',
       temperature: typeof settings?.temperature === 'number' ? settings.temperature : 0.7,
     },
     messages: messages.map(normalizeMessage),

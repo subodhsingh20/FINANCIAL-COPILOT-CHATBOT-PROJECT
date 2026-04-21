@@ -197,7 +197,7 @@ function PortfolioForm({
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <button
           type="button"
           onClick={addAsset}
@@ -206,7 +206,7 @@ function PortfolioForm({
           Add asset
         </button>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:ml-auto sm:flex-row sm:items-center">
           {onCancel ? (
             <button
               type="button"

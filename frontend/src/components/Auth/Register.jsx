@@ -29,13 +29,13 @@ const Register = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.82),_transparent_30%),radial-gradient(circle_at_bottom_left,_rgba(191,219,254,0.4),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eef2ff_100%)] px-4 py-24 dark:bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.14),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(250,204,21,0.08),_transparent_28%),linear-gradient(180deg,_#09090b_0%,_#111827_100%)]">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.82),_transparent_30%),radial-gradient(circle_at_bottom_left,_rgba(191,219,254,0.4),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eef2ff_100%)] px-4 py-16 sm:py-24 dark:bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.14),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(250,204,21,0.08),_transparent_28%),linear-gradient(180deg,_#09090b_0%,_#111827_100%)]">
       <div className="absolute inset-0 opacity-70 dark:opacity-100">
         <div className="absolute right-[10%] top-[14%] h-44 w-44 rounded-full bg-white/70 blur-3xl dark:bg-sky-500/20" />
         <div className="absolute bottom-[12%] left-[9%] h-52 w-52 rounded-full bg-indigo-200/70 blur-3xl dark:bg-amber-500/10" />
       </div>
 
-      <div className="relative grid w-full max-w-6xl overflow-hidden rounded-[36px] border border-white/60 bg-white/75 shadow-[0_40px_120px_-55px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_40px_120px_-55px_rgba(0,0,0,0.65)] md:grid-cols-[0.95fr_1.05fr]">
+      <div className="relative grid w-full max-w-6xl overflow-hidden rounded-[28px] border border-white/60 bg-white/75 shadow-[0_40px_120px_-55px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_40px_120px_-55px_rgba(0,0,0,0.65)] md:grid-cols-[0.95fr_1.05fr] md:rounded-[36px]">
         <section className="p-6 md:p-10 lg:p-12">
           <div className="mx-auto w-full max-w-md">
             <div className="mb-10">
@@ -44,7 +44,7 @@ const Register = () => {
                 Join NexusAI
               </h2>
               <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">
-                Create your workspace and start saving conversations with Gemini.
+                Create your workspace and start saving conversations with OpenRouter GPT-4o.
               </p>
             </div>
 
@@ -108,13 +108,13 @@ const Register = () => {
         <section className="hidden flex-col justify-center bg-[linear-gradient(160deg,_rgba(243,244,255,0.96),_rgba(226,232,255,0.78))] p-10 md:flex dark:bg-[linear-gradient(160deg,_rgba(15,23,42,0.9),_rgba(30,27,75,0.8))]">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-              Gemini Powered
+              Chat Powered
             </div>
             <h1 className="mt-8 max-w-lg text-5xl font-semibold tracking-tight text-slate-950 dark:text-white">
               Create a space that feels ready for work.
             </h1>
             <p className="mt-5 max-w-lg text-base leading-8 text-slate-600 dark:text-slate-300">
-              Organize ideas, continue conversations, and use a modern AI experience that feels simple and professional.
+              Organize ideas, continue conversations, and use a simple chat experience that feels calm and professional.
             </p>
           </div>
         </section>

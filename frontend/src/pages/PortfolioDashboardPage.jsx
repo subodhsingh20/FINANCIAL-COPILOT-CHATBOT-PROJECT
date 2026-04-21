@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { fetchCurrentPortfolio, analyzePortfolio } from '../lib/portfolioApi';
+import { deletePortfolio, fetchCurrentPortfolio, analyzePortfolio } from '../lib/portfolioApi';
 import PortfolioDashboard from '../components/Portfolio/PortfolioDashboard';
 
 const DEMO_PORTFOLIO = {
@@ -96,6 +96,8 @@ function PortfolioDashboardPage() {
   const [analysis, setAnalysis] = useState(EMPTY_ANALYSIS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user?._id) {
@@ -136,18 +138,46 @@ function PortfolioDashboardPage() {
 
   const handleEdit = () => navigate('/portfolio/manage');
 
+  const handleDelete = () => {
+    if (!portfolio?._id) {
+      return;
+    }
+
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!portfolio?._id) {
+      setDeleteDialogOpen(false);
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await deletePortfolio(portfolio._id);
+      setPortfolio(null);
+      setAnalysis(EMPTY_ANALYSIS);
+      setError('');
+      setDeleteDialogOpen(false);
+    } catch (requestError) {
+      setError(requestError.message || 'Unable to delete portfolio.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authLoading) {
     return <div className="px-4 py-24 text-center text-slate-500">Loading account...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.88),_transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.24),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eaf1ff_100%)] px-4 py-8 pt-24 text-slate-900 dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.18),_transparent_34%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)] dark:text-slate-100">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.88),_transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.24),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eaf1ff_100%)] px-3 py-6 pt-20 text-slate-900 sm:px-4 sm:py-8 sm:pt-24 dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_24%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.18),_transparent_34%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)] dark:text-slate-100">
       <div className="mx-auto max-w-[1700px]">
-      {error ? (
-        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
-          {error}
-        </div>
-      ) : null}
+        {error ? (
+          <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
+            {error}
+          </div>
+        ) : null}
 
         <PortfolioDashboard
           portfolio={portfolio}
@@ -155,9 +185,45 @@ function PortfolioDashboardPage() {
           loading={loading}
           error={error}
           onEdit={handleEdit}
+          onDelete={handleDelete}
           onRefresh={loadData}
         />
       </div>
+
+      {deleteDialogOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[1.75rem] border border-white/60 bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.28)] dark:border-white/10 dark:bg-slate-950">
+            <div className="text-xs uppercase tracking-[0.35em] text-rose-500 dark:text-rose-300">
+              Delete portfolio
+            </div>
+            <h3 className="mt-3 text-2xl font-semibold text-slate-950 dark:text-white">
+              Delete this portfolio?
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              This will permanently remove your saved portfolio and its analysis. You can create a new one later, but this action cannot be undone.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={deleting}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="rounded-xl bg-gradient-to-r from-rose-600 to-red-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deleting ? 'Deleting...' : 'Delete portfolio'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

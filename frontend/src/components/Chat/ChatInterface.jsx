@@ -6,10 +6,10 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
 const QUICK_PROMPTS = [
-  'Help me write a README',
-  'Help me fix a React error',
-  'Explain this in simple words',
-  'Turn this idea into a plan',
+  'Help me write a text message',
+  'What should I make for dinner?',
+  'Give me a simple daily plan',
+  'Tell me a quick joke',
 ];
 
 const ChatInterface = () => {
@@ -42,10 +42,7 @@ const ChatInterface = () => {
     [conversations]
   );
 
-  const conversationMessages = useMemo(
-    () => currentConversation?.messages || [],
-    [currentConversation]
-  );
+  const conversationMessages = useMemo(() => currentConversation?.messages || [], [currentConversation]);
 
   useEffect(() => {
     if (!error) {
@@ -151,9 +148,20 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.88),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.24),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eaf1ff_100%)] pt-16 text-slate-900 dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.14),_transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.18),_transparent_34%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)] dark:text-slate-100">
-      <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-[1700px]">
-        <aside className={`fixed inset-y-16 left-0 z-40 w-[280px] border-r border-white/45 bg-white/72 shadow-[0_24px_80px_rgba(148,163,184,0.22)] backdrop-blur-2xl transition md:static md:translate-x-0 dark:border-white/10 dark:bg-slate-950/45 dark:shadow-[0_28px_90px_rgba(2,6,23,0.55)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.88),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.24),_transparent_30%),linear-gradient(180deg,_#f7fafc_0%,_#eaf1ff_100%)] pt-16 text-slate-900 dark:bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.14),_transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.18),_transparent_34%),linear-gradient(180deg,_#020617_0%,_#0f172a_52%,_#111827_100%)] dark:text-slate-100">
+      {sidebarOpen ? (
+        <button
+          type="button"
+          aria-label="Close sidebar overlay"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-slate-950/30 backdrop-blur-[1px] md:hidden"
+        />
+      ) : null}
+
+      <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-[1700px]">
+        <aside
+          className={`fixed inset-y-16 left-0 z-40 w-[min(88vw,320px)] border-r border-white/45 bg-white/72 shadow-[0_24px_80px_rgba(148,163,184,0.22)] backdrop-blur-2xl transition md:static md:w-[280px] md:translate-x-0 dark:border-white/10 dark:bg-slate-950/45 dark:shadow-[0_28px_90px_rgba(2,6,23,0.55)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+        >
           <div className="flex h-full flex-col">
             <div className="border-b border-white/45 p-4 dark:border-white/10">
               <div className="mb-3 flex items-center justify-between md:hidden">
@@ -204,10 +212,18 @@ const ChatInterface = () => {
                             className="w-full rounded-xl border border-slate-200/90 bg-white/90 px-3 py-2 text-sm outline-none transition focus:border-sky-300 focus:ring-2 focus:ring-sky-100 dark:border-white/10 dark:bg-slate-950/70 dark:focus:border-sky-400 dark:focus:ring-sky-500/20"
                           />
                           <div className="flex gap-2">
-                            <button type="button" onClick={handleSaveRename} className="rounded-xl bg-gradient-to-r from-slate-900 via-sky-900 to-indigo-900 px-3 py-1.5 text-xs font-semibold text-white dark:from-sky-400 dark:via-cyan-300 dark:to-indigo-400 dark:text-slate-950">
+                            <button
+                              type="button"
+                              onClick={handleSaveRename}
+                              className="rounded-xl bg-gradient-to-r from-slate-900 via-sky-900 to-indigo-900 px-3 py-1.5 text-xs font-semibold text-white dark:from-sky-400 dark:via-cyan-300 dark:to-indigo-400 dark:text-slate-950"
+                            >
                               Save
                             </button>
-                            <button type="button" onClick={() => setEditingTitleId(null)} className="rounded-xl border border-slate-200/90 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                            <button
+                              type="button"
+                              onClick={() => setEditingTitleId(null)}
+                              className="rounded-xl border border-slate-200/90 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+                            >
                               Cancel
                             </button>
                           </div>
@@ -255,7 +271,7 @@ const ChatInterface = () => {
 
             <div className="border-t border-white/45 p-4 text-sm dark:border-white/10">
               <div className="truncate font-medium text-slate-800 dark:text-slate-100">{user?.username || user?.email}</div>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">Gemini connected</div>
+              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">OpenRouter connected</div>
               <button
                 type="button"
                 onClick={logout}
@@ -282,7 +298,7 @@ const ChatInterface = () => {
                   {currentConversation?.title || 'New chat'}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Gemini 2.5 Flash
+                  OpenRouter
                 </div>
               </div>
             </div>

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { AuthContext } from './AuthContext';
 import { apiUrl } from '../lib/api';
 
-const DEFAULT_SYSTEM_PROMPT = 'You are NexusAI, a modern AI assistant. Be helpful, accurate, practical, and concise. Use markdown when it improves readability.';
+const DEFAULT_SYSTEM_PROMPT = 'You are a helpful, accurate, practical, and concise chat assistant. Use markdown when it improves readability.';
 const DEFAULT_TEMPERATURE = 0.7;
 
 export const ChatContext = createContext();

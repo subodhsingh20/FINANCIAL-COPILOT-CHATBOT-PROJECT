@@ -7,13 +7,13 @@ const EmptyState = ({ quickPrompts, onPromptClick }) => (
   <div className="flex flex-1 items-center justify-center py-10">
     <div className="w-full max-w-3xl text-center">
       <div className="mx-auto mb-6 inline-flex items-center rounded-full border border-white/60 bg-white/78 px-4 py-1.5 text-sm text-slate-600 shadow-[0_12px_28px_rgba(148,163,184,0.14)] backdrop-blur dark:border-white/10 dark:bg-white/6 dark:text-slate-300">
-        Gemini 2.5 Flash ready
+        Quick chat
       </div>
       <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white md:text-4xl">
         How can I help today?
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400 md:text-base">
-        Ask questions, write content, debug code, plan a project, or explore ideas.
+        Ask about everyday things like messages, meals, plans, reminders, or a quick joke.
       </p>
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {quickPrompts.map((prompt) => (
@@ -70,7 +70,7 @@ const MessageBubble = ({ message, onCopy, onRegenerate }) => {
       >
         <div className={`mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-slate-400 ${isAssistant ? 'max-w-4xl' : ''}`}>
           <span className="font-medium text-slate-700 dark:text-slate-300">
-            {isAssistant ? 'NexusAI' : 'You'}
+            {isAssistant ? 'Assistant' : 'You'}
           </span>
           <span>{new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           {message.model ? <span>- {message.model}</span> : null}

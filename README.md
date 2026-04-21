@@ -6,7 +6,7 @@ NexusAI is a full-stack portfolio analysis app with:
 - Express backend
 - Cloudant storage
 - live market data from NSE
-- AI portfolio analysis from Gemini
+- AI portfolio analysis from deterministic portfolio rules
 
 ## Local Setup
 
@@ -22,9 +22,9 @@ CLOUDANT_CONVERSATIONS_DB=conversations
 CLOUDANT_PORTFOLIOS_DB=portfolios
 JWT_SECRET=your-long-random-secret
 CORS_ORIGIN=http://localhost:5173
-AI_API_KEY=
-AI_MODEL=gemini-2.5-flash
-AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_MODEL=openrouter/free
 ALPHA_VANTAGE_API_KEY=
 PRICE_CACHE_TTL_MS=120000
 ```
@@ -88,9 +88,9 @@ CLOUDANT_CONVERSATIONS_DB=conversations
 CLOUDANT_PORTFOLIOS_DB=portfolios
 JWT_SECRET=replace-with-a-long-random-secret
 CORS_ORIGIN=http://localhost:5173,https://your-frontend-url
-AI_API_KEY=your-gemini-api-key
-AI_MODEL=gemini-2.0-flash
-AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+OPENROUTER_API_KEY=your-openrouter-api-key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_MODEL=openrouter/free
 ALPHA_VANTAGE_API_KEY=
 PRICE_CACHE_TTL_MS=120000
 ```
@@ -99,7 +99,7 @@ Use `/api/health` as the health check path for the backend service.
 
 ### Run from Docker Hub
 
-For a production-style Docker Compose deployment, copy `backend/.env.prod.example` to `backend/.env.prod`, fill in your secrets, set `DOCKERHUB_USERNAME` in your shell, then start the published images:
+For a production-style Docker Compose deployment, copy `backend/.env.prod.example` to `backend/.env.prod`, fill in your secrets, and then start the published images. The production compose file is locked to the `subodhsingh20` Docker Hub namespace so it does not depend on a shell variable:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d

@@ -6,7 +6,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
-      <div className="pt-32 md:pt-40">
+      <div className="pt-24 sm:pt-32 md:pt-40">
         <Login />
       </div>
     </div>

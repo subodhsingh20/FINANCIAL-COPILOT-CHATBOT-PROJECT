@@ -1,11 +1,11 @@
 import React from 'react';
 
-function Header({ title, subtitle, sourceLabel, aiLabel, onRefresh, onEdit }) {
+function Header({ title, subtitle, sourceLabel, aiLabel, onRefresh, onEdit, onDelete }) {
   const displaySource = sourceLabel || 'Demo';
   const displayAi = aiLabel || 'Fallback';
 
   return (
-    <section className="rounded-[2rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.16),transparent_34%),linear-gradient(135deg,rgba(255,255,255,0.96),rgba(226,232,240,0.72))] p-6 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.22),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.94),rgba(15,23,42,0.72))] md:p-8">
+    <section className="rounded-[2rem] border border-white/70 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.16),transparent_34%),linear-gradient(135deg,rgba(255,255,255,0.96),rgba(226,232,240,0.72))] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.10)] backdrop-blur dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.22),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.94),rgba(15,23,42,0.72))] sm:p-6 md:p-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-3">
@@ -19,7 +19,7 @@ function Header({ title, subtitle, sourceLabel, aiLabel, onRefresh, onEdit }) {
               {displaySource}
             </span>
             <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-violet-700 dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-200">
-              AI Insights: {displayAi}
+              Analysis: {displayAi}
             </span>
           </div>
           <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-slate-950 dark:text-white md:text-4xl">
@@ -33,7 +33,7 @@ function Header({ title, subtitle, sourceLabel, aiLabel, onRefresh, onEdit }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
           <button
             type="button"
             onClick={onRefresh}
@@ -48,6 +48,15 @@ function Header({ title, subtitle, sourceLabel, aiLabel, onRefresh, onEdit }) {
           >
             Edit portfolio
           </button>
+          {onDelete ? (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20"
+            >
+              Delete portfolio
+            </button>
+          ) : null}
         </div>
       </div>
     </section>
