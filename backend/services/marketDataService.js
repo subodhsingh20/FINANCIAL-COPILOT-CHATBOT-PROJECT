@@ -98,19 +98,19 @@ async function searchAssets(query) {
   }
 
   try {
-    const yahooResults = await searchYahooFinance(trimmed);
-    if (yahooResults.length > 0) {
-      return yahooResults;
-    }
-  } catch (error) {
     const alphaResults = await searchAlphaVantage(trimmed);
     if (alphaResults.length > 0) {
       return alphaResults;
     }
+  } catch (error) {
+    const yahooResults = await searchYahooFinance(trimmed);
+    if (yahooResults.length > 0) {
+      return yahooResults;
+    }
     throw error;
   }
 
-  return searchAlphaVantage(trimmed);
+  return searchYahooFinance(trimmed);
 }
 
 async function getQuoteSnapshots(symbols = []) {
