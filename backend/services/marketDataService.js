@@ -98,21 +98,21 @@ async function searchAssets(query) {
   }
 
   try {
-    const alphaResults = await searchAlphaVantage(trimmed);
-    if (alphaResults.length > 0) {
-      return alphaResults;
-    }
-  } catch (error) {
-    console.warn('Alpha Vantage search failed, trying Yahoo Finance:', error.message);
-  }
-
-  try {
     const yahooResults = await searchYahooFinance(trimmed);
     if (yahooResults.length > 0) {
       return yahooResults;
     }
   } catch (error) {
-    console.warn('Yahoo Finance search failed:', error.message);
+    console.warn('Yahoo Finance search failed, trying Alpha Vantage:', error.message);
+  }
+
+  try {
+    const alphaResults = await searchAlphaVantage(trimmed);
+    if (alphaResults.length > 0) {
+      return alphaResults;
+    }
+  } catch (error) {
+    console.warn('Alpha Vantage search failed:', error.message);
   }
 
   return [];
