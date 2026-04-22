@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { ChatContext } from '../../context/ChatContext';
 import { AuthContext } from '../../context/AuthContext';
+import { apiUrl } from '../../lib/api';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
@@ -11,6 +12,24 @@ const QUICK_PROMPTS = [
   'Give me a simple daily plan',
   'Tell me a quick joke',
 ];
+
+const EditIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+    <path
+      fill="currentColor"
+      d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.83H5v-.92l8.06-8.06.92.92L5.92 20.08ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"
+    />
+  </svg>
+);
+
+const DeleteIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+    <path
+      fill="currentColor"
+      d="M6 7h12l-1 14H7L6 7Zm3-3h6l1 2H8l1-2ZM4 7h16v2H4V7Z"
+    />
+  </svg>
+);
 
 const ChatInterface = () => {
   const {
@@ -30,12 +49,14 @@ const ChatInterface = () => {
   const { user, logout } = useContext(AuthContext);
 
   const [draft, setDraft] = useState('');
-  const [isListening, setIsListening] = useState(false);
+  const [voiceState, setVoiceState] = useState('idle');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editingTitleId, setEditingTitleId] = useState(null);
   const [titleDraft, setTitleDraft] = useState('');
   const messagesEndRef = useRef(null);
-  const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   const sortedConversations = useMemo(
     () => [...conversations].sort((left, right) => new Date(right.updatedAt) - new Date(left.updatedAt)),
@@ -58,37 +79,52 @@ const ChatInterface = () => {
   }, [conversationMessages, status]);
 
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      return undefined;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event) => {
-      let transcript = '';
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        transcript += event.results[index][0].transcript;
-      }
-
-      if (transcript.trim()) {
-        setDraft(transcript.trim());
-      }
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
     return () => {
-      recognition.stop();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+      audioChunksRef.current = [];
+      setVoiceState('idle');
     };
   }, []);
+
+  const transcribeAudio = async (audioBlob) => {
+    try {
+      setVoiceState('transcribing');
+      const response = await fetch(apiUrl('/api/voice/transcribe'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': audioBlob.type || 'application/octet-stream',
+        },
+        body: audioBlob,
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || 'Unable to transcribe audio');
+      }
+
+      const transcript = String(data.transcript || '').trim();
+      if (!transcript) {
+        toast.info('No speech detected');
+        setVoiceState('idle');
+        return;
+      }
+
+      setDraft((currentDraft) => {
+        const existing = currentDraft.trim();
+        return existing ? `${existing} ${transcript}` : transcript;
+      });
+      setVoiceState('idle');
+    } catch (error) {
+      setVoiceState('idle');
+      toast.error(error.message || 'Unable to transcribe audio');
+    }
+  };
 
   const handleSendMessage = async (nextDraft = draft) => {
     const safeDraft = typeof nextDraft === 'string' ? nextDraft : draft;
@@ -110,21 +146,64 @@ const ChatInterface = () => {
     }
   };
 
-  const handleToggleListening = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition) {
+  const handleToggleListening = async () => {
+    if (voiceState === 'listening') {
+      mediaRecorderRef.current?.stop();
+      setVoiceState('transcribing');
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia || typeof window.MediaRecorder === 'undefined') {
       toast.info('Voice input is not available in this browser');
       return;
     }
 
-    if (isListening) {
-      recognition.stop();
-      setIsListening(false);
-      return;
-    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const supportedMimeTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'];
+      const mimeType = supportedMimeTypes.find(
+        (type) => typeof window.MediaRecorder.isTypeSupported === 'function' && window.MediaRecorder.isTypeSupported(type)
+      );
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
 
-    recognition.start();
-    setIsListening(true);
+      mediaStreamRef.current = stream;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onerror = (event) => {
+        setVoiceState('idle');
+        toast.error(event.error?.message || 'Voice recording failed');
+      };
+
+      recorder.onstop = async () => {
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || 'audio/webm',
+        });
+        audioChunksRef.current = [];
+
+        if (!audioBlob.size) {
+          setVoiceState('idle');
+          return;
+        }
+
+        await transcribeAudio(audioBlob);
+      };
+
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setVoiceState('listening');
+    } catch (error) {
+      setVoiceState('idle');
+      toast.error(error.message || 'Unable to access microphone');
+    }
   };
 
   const handleCreateConversation = () => {
@@ -231,7 +310,7 @@ const ChatInterface = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-start gap-2 p-2">
+                        <div className="flex flex-col gap-2 p-2 sm:flex-row sm:items-start">
                           <button
                             type="button"
                             onClick={() => {
@@ -247,20 +326,24 @@ const ChatInterface = () => {
                               {conversation.messages.length} messages
                             </div>
                           </button>
-                          <div className="flex opacity-0 transition group-hover:opacity-100">
+                          <div className="flex flex-wrap gap-2 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
                             <button
                               type="button"
                               onClick={() => handleStartRename(conversation)}
-                              className="rounded-lg px-2 py-2 text-xs text-slate-500 transition hover:bg-white/85 hover:text-slate-800 dark:hover:bg-white/10 dark:hover:text-white"
+                              aria-label="Edit conversation"
+                              title="Edit"
+                              className="inline-flex items-center justify-center rounded-lg border border-slate-200/80 bg-white/80 p-2 text-slate-600 transition hover:bg-white hover:text-slate-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
                             >
-                              Edit
+                              <EditIcon />
                             </button>
                             <button
                               type="button"
                               onClick={() => deleteConversation(conversation.id)}
-                              className="rounded-lg px-2 py-2 text-xs text-slate-500 transition hover:bg-white/85 hover:text-rose-600 dark:hover:bg-white/10"
+                              aria-label="Delete conversation"
+                              title="Delete"
+                              className="inline-flex items-center justify-center rounded-lg border border-slate-200/80 bg-white/80 p-2 text-slate-600 transition hover:bg-white hover:text-rose-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                             >
-                              Delete
+                              <DeleteIcon />
                             </button>
                           </div>
                         </div>
@@ -327,7 +410,7 @@ const ChatInterface = () => {
                 draft={draft}
                 setDraft={setDraft}
                 onSubmit={handleSendMessage}
-                isListening={isListening}
+                voiceState={voiceState}
                 onToggleListening={handleToggleListening}
                 disabled={status === 'loading'}
               />
