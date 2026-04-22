@@ -61,6 +61,9 @@ function AssetSearch({ onSelect }) {
         <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
           Search stocks, ETFs, or mutual funds
         </h3>
+        <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+          Alpha Vantage first, Yahoo fallback
+        </div>
       </div>
 
       <input

@@ -103,14 +103,19 @@ async function searchAssets(query) {
       return alphaResults;
     }
   } catch (error) {
+    console.warn('Alpha Vantage search failed, trying Yahoo Finance:', error.message);
+  }
+
+  try {
     const yahooResults = await searchYahooFinance(trimmed);
     if (yahooResults.length > 0) {
       return yahooResults;
     }
-    throw error;
+  } catch (error) {
+    console.warn('Yahoo Finance search failed:', error.message);
   }
 
-  return searchYahooFinance(trimmed);
+  return [];
 }
 
 async function getQuoteSnapshots(symbols = []) {

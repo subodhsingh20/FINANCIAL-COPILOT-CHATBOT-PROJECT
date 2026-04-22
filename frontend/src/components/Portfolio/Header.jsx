@@ -1,7 +1,37 @@
 import React from 'react';
 
+function formatSourceLabel(source) {
+  const normalized = String(source || '').trim().toLowerCase();
+
+  if (!normalized || normalized === 'demo') {
+    return 'Live Data: Demo';
+  }
+
+  if (normalized === 'nse-api-ruby') {
+    return 'Live Data: NSE API Ruby';
+  }
+
+  if (normalized === 'nse-api-ruby-fallback') {
+    return 'Live Data: NSE API Ruby Fallback';
+  }
+
+  if (normalized === 'alpha-vantage') {
+    return 'Live Data: Alpha Vantage';
+  }
+
+  if (normalized === 'yahoo-finance') {
+    return 'Live Data: Yahoo Finance';
+  }
+
+  if (normalized === 'fallback-buy-price') {
+    return 'Live Data: Buy Price Fallback';
+  }
+
+  return `Live Data: ${source}`;
+}
+
 function Header({ title, subtitle, sourceLabel, aiLabel, onRefresh, onEdit, onDelete }) {
-  const displaySource = sourceLabel || 'Demo';
+  const displaySource = formatSourceLabel(sourceLabel);
   const displayAi = aiLabel || 'Fallback';
 
   return (
