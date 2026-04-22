@@ -122,7 +122,11 @@ function normalizeUserDocument(document) {
     _id: document._id,
     username: document.username,
     email: document.email,
-    password: document.password,
+    password: document.password || null,
+    authProvider: document.authProvider || 'local',
+    appIdSub: document.appIdSub || null,
+    displayName: document.displayName || null,
+    picture: document.picture || null,
     createdAt: document.createdAt || new Date().toISOString(),
     updatedAt: document.updatedAt || document.createdAt || new Date().toISOString(),
   };
@@ -175,6 +179,16 @@ async function ensureIndexes() {
     body: {
       index: { fields: ['type', 'username'] },
       name: 'users-by-username',
+      type: 'json',
+    },
+  });
+
+  await cloudantRequest(`/${encodeURIComponent(usersDb)}/_index`, {
+    method: 'POST',
+    expectedStatus: [200],
+    body: {
+      index: { fields: ['type', 'appIdSub'] },
+      name: 'users-by-appid-sub',
       type: 'json',
     },
   });
@@ -322,9 +336,61 @@ async function createUser({ username, email, password }) {
     username,
     email,
     password,
+    authProvider: 'local',
+    appIdSub: null,
+    displayName: username,
+    picture: null,
     createdAt: now,
     updatedAt: now,
   };
+
+  const saved = await saveDocument(usersDb, document);
+  return normalizeUserDocument(saved);
+}
+
+async function upsertAppIdUser(profile) {
+  const now = new Date().toISOString();
+  const appIdSub = String(profile?.sub || profile?.id || '').trim();
+  const email = String(profile?.emails?.[0]?.value || profile?.email || '').trim().toLowerCase();
+  const displayName = String(
+    profile?.displayName
+    || profile?.name?.formatted
+    || profile?.name
+    || profile?.given_name
+    || profile?.preferred_username
+    || email.split('@')[0]
+    || 'IBM App ID User'
+  ).trim();
+  const picture = profile?.picture || profile?.photos?.[0]?.value || null;
+
+  const existingBySub = appIdSub ? await findOne(usersDb, { type: 'user', appIdSub }) : null;
+  const existingByEmail = !existingBySub && email ? await findOne(usersDb, { type: 'user', email }) : null;
+  const existing = existingBySub || existingByEmail;
+
+  const document = existing
+    ? {
+        ...existing,
+        username: existing.username || displayName,
+        email: email || existing.email,
+        authProvider: 'ibm-app-id',
+        appIdSub: appIdSub || existing.appIdSub || null,
+        displayName: displayName || existing.displayName || existing.username,
+        picture: picture || existing.picture || null,
+        updatedAt: now,
+      }
+    : {
+        _id: appIdSub ? `appid:${appIdSub}` : createDocumentId('appid-user'),
+        type: 'user',
+        username: displayName,
+        email,
+        password: null,
+        authProvider: 'ibm-app-id',
+        appIdSub,
+        displayName,
+        picture,
+        createdAt: now,
+        updatedAt: now,
+      };
 
   const saved = await saveDocument(usersDb, document);
   return normalizeUserDocument(saved);
@@ -481,6 +547,7 @@ module.exports = {
   getUserByUsername,
   getUserById,
   createUser,
+  upsertAppIdUser,
   listConversationsByUserId,
   getConversationByIdForUser,
   createConversation,

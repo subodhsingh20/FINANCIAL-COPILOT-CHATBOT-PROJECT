@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { apiUrl } from '../lib/api';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
   const location = useLocation();
-  const navigate = useNavigate();
   const navbarRef = useRef(null);
 
   const isActive = (path) => location.pathname.startsWith(path);
@@ -80,7 +80,7 @@ const Navbar = () => {
               type="button"
               onClick={() => {
                 logout();
-                navigate('/login');
+                window.location.assign(apiUrl('/appid/logout'));
               }}
               className="rounded-xl border border-slate-200/90 bg-white/80 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
             >
@@ -121,30 +121,39 @@ const Navbar = () => {
             </div>
           </div>
         ) : (
-          <button
-            onClick={toggleDarkMode}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-white/80 text-slate-700 shadow-sm transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
-            aria-label={themeLabel}
-            title={themeLabel}
-          >
-            {darkMode ? (
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
-                <path d="M12 3v2.25" />
-                <path d="M12 18.75V21" />
-                <path d="M4.5 12H6.75" />
-                <path d="M17.25 12H19.5" />
-                <path d="M5.64 5.64l1.59 1.59" />
-                <path d="M16.77 16.77l1.59 1.59" />
-                <path d="M5.64 18.36l1.59-1.59" />
-                <path d="M16.77 7.23l1.59-1.59" />
-                <circle cx="12" cy="12" r="3.5" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
-                <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 7.2 7.2 0 0 0 21 12.8Z" />
-              </svg>
-            )}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={toggleDarkMode}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-white/80 text-slate-700 shadow-sm transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+              aria-label={themeLabel}
+              title={themeLabel}
+            >
+              {darkMode ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
+                  <path d="M12 3v2.25" />
+                  <path d="M12 18.75V21" />
+                  <path d="M4.5 12H6.75" />
+                  <path d="M17.25 12H19.5" />
+                  <path d="M5.64 5.64l1.59 1.59" />
+                  <path d="M16.77 16.77l1.59 1.59" />
+                  <path d="M5.64 18.36l1.59-1.59" />
+                  <path d="M16.77 7.23l1.59-1.59" />
+                  <circle cx="12" cy="12" r="3.5" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
+                  <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 7.2 7.2 0 0 0 21 12.8Z" />
+                </svg>
+              )}
+            </button>
+
+            <Link
+              to="/login"
+              className="rounded-xl border border-slate-200/90 bg-white/80 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+            >
+              Login
+            </Link>
+          </div>
         )}
       </div>
     </nav>

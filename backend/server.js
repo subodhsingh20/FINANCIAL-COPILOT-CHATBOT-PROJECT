@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
+const session = require('express-session');
+const passport = require('passport');
+const { WebAppStrategy } = require('ibmcloud-appid');
 
 function loadEnvFile(filePath, { onlyMissing = false } = {}) {
   if (!fs.existsSync(filePath)) {
@@ -23,6 +26,7 @@ loadEnvFile(path.join(__dirname, '.env.prod'), { onlyMissing: true });
 const express = require('express');
 const cors = require('cors');
 
+const appIdRoutes = require('./routes/appid');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const conversationRoutes = require('./routes/conversations');
@@ -33,6 +37,8 @@ const { initializeCloudant } = require('./services/cloudantService');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
+
+app.set('trust proxy', 1);
 
 function isPlaceholderCloudantUrl(value) {
   const normalized = String(value || '').trim().toLowerCase();
@@ -53,6 +59,32 @@ if (!process.env.JWT_SECRET) {
   console.error('Missing required environment variable: JWT_SECRET');
   process.exit(1);
 }
+
+const requiredAppIdEnvVars = [
+  'SESSION_SECRET',
+  'IBM_APPID_TENANT_ID',
+  'IBM_APPID_CLIENT_ID',
+  'IBM_APPID_SECRET',
+  'IBM_APPID_OAUTH_SERVER_URL',
+  'IBM_APPID_REDIRECT_URI',
+];
+
+const missingAppIdEnvVars = requiredAppIdEnvVars.filter((name) => !String(process.env[name] || '').trim());
+if (missingAppIdEnvVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingAppIdEnvVars.join(', ')}`);
+  process.exit(1);
+}
+
+passport.serializeUser((user, cb) => cb(null, user));
+passport.deserializeUser((user, cb) => cb(null, user));
+
+passport.use(new WebAppStrategy({
+  tenantId: process.env.IBM_APPID_TENANT_ID,
+  clientId: process.env.IBM_APPID_CLIENT_ID,
+  secret: process.env.IBM_APPID_SECRET,
+  oauthServerUrl: process.env.IBM_APPID_OAUTH_SERVER_URL,
+  redirectUri: process.env.IBM_APPID_REDIRECT_URI,
+}));
 
 if (process.env.OPENROUTER_API_KEY) {
   console.log(`AI provider configured: openrouter (${process.env.OPENROUTER_MODEL || process.env.AI_MODEL || 'openai/gpt-4o'})`);
@@ -108,6 +140,18 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  },
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   if (!res.getHeader('Cache-Control')) {
@@ -129,6 +173,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.use('/', appIdRoutes);
 app.use('/api', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/conversations', conversationRoutes);

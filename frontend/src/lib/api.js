@@ -8,6 +8,7 @@ export function apiUrl(path) {
 export async function apiRequest(path, options = {}, token) {
   const response = await fetch(apiUrl(path), {
     ...options,
+    credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(options.body ? { 'Content-Type': 'application/json' } : {}),

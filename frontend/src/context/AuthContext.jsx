@@ -24,8 +24,9 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = useCallback(async (token) => {
     try {
       const res = await fetch(apiUrl('/api/user'), {
+        credentials: 'include',
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
       if (res.ok) {
@@ -33,11 +34,15 @@ export const AuthProvider = ({ children }) => {
         setUser(normalizeUser(userData));
       } else {
         setUser(null);
-        localStorage.removeItem('token');
+        if (token) {
+          localStorage.removeItem('token');
+        }
       }
     } catch {
       setUser(null);
-      localStorage.removeItem('token');
+      if (token) {
+        localStorage.removeItem('token');
+      }
     }
     setLoading(false);
   }, []);
@@ -47,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       fetchUser(token);
     } else {
-      setLoading(false);
+      fetchUser();
     }
   }, [fetchUser]);
 
@@ -55,6 +60,8 @@ export const AuthProvider = ({ children }) => {
     setUser(normalizeUser(userData));
     if (token) {
       localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
     }
   };
 

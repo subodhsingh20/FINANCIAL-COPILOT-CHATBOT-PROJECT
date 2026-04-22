@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
 
 const Login = lazy(() => import('./components/Auth/Login'));
-const Register = lazy(() => import('./components/Auth/Register'));
+const AppIdCallback = lazy(() => import('./components/Auth/AppIdCallback'));
 const ChatInterface = lazy(() => import('./components/Chat/ChatInterface'));
 const PortfolioDashboardPage = lazy(() => import('./pages/PortfolioDashboardPage'));
 const PortfolioManagePage = lazy(() => import('./pages/PortfolioManagePage'));
@@ -43,7 +43,7 @@ function App() {
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/appid/callback" element={<AppIdCallback />} />
             <Route
               path="/portfolio"
               element={
