@@ -38,10 +38,12 @@ npm start
 
 ### Frontend
 
-Copy `frontend/.env.example` to `frontend/.env` and set:
+For local development, the frontend uses the Vite proxy in `frontend/vite.config.js`, so you can run it without setting an API URL.
+
+If you want to build the frontend against a deployed backend, set:
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=https://your-backend-domain
 ```
 
 Run the frontend:
