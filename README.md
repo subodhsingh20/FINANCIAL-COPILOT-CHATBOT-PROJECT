@@ -60,6 +60,8 @@ This repository now supports a Docker-based CI/CD flow:
   - `nova-ai-backend`
   - `nova-ai-frontend`
 
+For AWS Amplify frontend deployments, set `VITE_API_BASE_URL` as a normal Amplify environment variable. Do not store that frontend build value in Amplify Secrets / SSM Parameter Store; otherwise Amplify may log `Failed to set up process.env.secrets` before the build even though the React app itself is fine.
+
 ### CI/CD flow
 
 1. Push code from VS Code to GitHub.

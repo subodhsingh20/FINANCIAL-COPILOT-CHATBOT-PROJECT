@@ -7,6 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Navbar from './components/Navbar';
 
+const loadingMessage = 'Loading app...';
+
 const Login = lazy(() => import('./components/Auth/Login'));
 const Register = lazy(() => import('./components/Auth/Register'));
 const ChatInterface = lazy(() => import('./components/Chat/ChatInterface'));
@@ -16,7 +18,7 @@ const PortfolioManagePage = lazy(() => import('./pages/PortfolioManagePage'));
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{loadingMessage}</div>;
 
   return user ? children : <Navigate to="/login" />;
 };
@@ -24,14 +26,14 @@ const PrivateRoute = ({ children }) => {
 const RootRoute = () => {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{loadingMessage}</div>;
 
   return <Navigate to={user ? '/portfolio' : '/login'} />;
 };
 
 const RouteFallback = () => (
   <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm text-slate-500 dark:text-slate-400">
-    Loading...
+    {loadingMessage}
   </div>
 );
 

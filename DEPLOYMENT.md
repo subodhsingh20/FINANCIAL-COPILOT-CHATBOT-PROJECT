@@ -37,6 +37,7 @@ VITE_API_BASE_URL=https://your-backend.elasticbeanstalk.com
 
 4. Amplify builds the React app from `frontend/`.
 5. Keep [`customHttp.yml`](./customHttp.yml) in the repo root so Amplify does not cache an old `index.html` and point the browser at a missing JS bundle.
+6. Do not put `VITE_API_BASE_URL` in Amplify Secrets / SSM Parameter Store. Set it as a normal Amplify environment variable instead. If Amplify logs `Failed to set up process.env.secrets`, that is a secrets bootstrap warning, not a frontend build error.
 
 ## Backend on Elastic Beanstalk
 
