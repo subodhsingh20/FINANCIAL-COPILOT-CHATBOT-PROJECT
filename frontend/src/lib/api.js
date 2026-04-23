@@ -1,4 +1,5 @@
-const normalizedBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const defaultBaseUrl = 'https://financial-copilot-chatbot-project.onrender.com';
+const normalizedBaseUrl = (import.meta.env.VITE_API_BASE_URL || defaultBaseUrl).replace(/\/$/, '');
 
 export function apiUrl(path) {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
