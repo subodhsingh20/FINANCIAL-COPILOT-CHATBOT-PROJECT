@@ -22,6 +22,14 @@ applications:
           headers:
             - key: Cache-Control
               value: no-store, no-cache, must-revalidate, proxy-revalidate
+        - pattern: '**/*.js'
+          headers:
+            - key: Cache-Control
+              value: no-store, no-cache, must-revalidate, proxy-revalidate
+        - pattern: '**/*.css'
+          headers:
+            - key: Cache-Control
+              value: no-store, no-cache, must-revalidate, proxy-revalidate
       redirects:
         - source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
           target: /index.html
