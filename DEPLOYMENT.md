@@ -36,7 +36,7 @@ VITE_API_BASE_URL=https://your-backend.elasticbeanstalk.com
 ```
 
 4. Amplify builds the React app from `frontend/`.
-5. The frontend uses the Vite proxy for local development, so keep the Amplify value pointed at the real backend, not `localhost`.
+5. Keep [`customHttp.yml`](./customHttp.yml) in the repo root so Amplify does not cache an old `index.html` and point the browser at a missing JS bundle.
 
 ## Backend on Elastic Beanstalk
 

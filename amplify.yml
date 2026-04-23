@@ -6,7 +6,6 @@ applications:
         preBuild:
           commands:
             - npm ci
-            - node -e "if (!process.env.VITE_API_BASE_URL) { console.error('Missing VITE_API_BASE_URL. Set it in Amplify to your deployed backend URL.'); process.exit(1); }"
         build:
           commands:
             - npm run build
@@ -17,19 +16,6 @@ applications:
       cache:
         paths:
           - node_modules/**/*
-      customHeaders:
-        - pattern: '**/*.html'
-          headers:
-            - key: Cache-Control
-              value: no-store, no-cache, must-revalidate, proxy-revalidate
-        - pattern: '**/*.js'
-          headers:
-            - key: Cache-Control
-              value: no-store, no-cache, must-revalidate, proxy-revalidate
-        - pattern: '**/*.css'
-          headers:
-            - key: Cache-Control
-              value: no-store, no-cache, must-revalidate, proxy-revalidate
       redirects:
         - source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>
           target: /index.html
